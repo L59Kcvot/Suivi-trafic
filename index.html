@@ -14,14 +14,13 @@
         .type-label { width: 90px; font-weight: bold; color: #002f6c; font-size: 16px; text-transform: uppercase; }
         .lines-grid { display: flex; flex-wrap: wrap; gap: 10px; flex: 1; }
         
-        /* Tes logos enfin opérationnels */
+        /* Ajustement parfait pour tous les logos images (Métro et RER) */
         .line-btn { height: 34px; cursor: pointer; transition: transform 0.1s; user-select: none; }
         .line-btn:hover { transform: scale(1.2); }
         
-        /* Boutons de secours */
+        /* Boutons de secours pour le Tram uniquement */
         .text-btn { display: inline-flex; align-items: center; justify-content: center; height: 34px; min-width: 34px; border-radius: 50%; background: #002f6c; color: #fff; font-weight: bold; font-size: 14px; cursor: pointer; user-select: none; padding: 0 5px; }
         .text-btn:hover { transform: scale(1.2); }
-        .text-btn.rer { border-radius: 4px; background: #0055c8; }
         .text-btn.tram { border-radius: 4px; background: #ff8000; }
 
         .incident-report { margin-top: 30px; padding: 20px; background-color: #fff; border-radius: 8px; border: 2px solid #ddd; display: none; }
@@ -47,24 +46,22 @@
 </div>
 
 <script>
-    // Configuration 100% synchro avec ta nouvelle arborescence "Logos/Métro/"
+    // Configuration calée à 100% sur tes dossiers "Logos/Métro/" et "Logos/Rer/"
     const codesImages = {
-        'm-1': 'Logos/Métro/LIG_IDFM_C01371.svg', 
-        'm-2': 'Logos/Métro/LIG_IDFM_C01372.svg', 
-        'm-3': 'Logos/Métro/LIG_IDFM_C01373.svg', 
-        'm-4': 'Logos/Métro/LIG_IDFM_C01374.svg', 
-        'm-5': 'Logos/Métro/LIG_IDFM_C01375.svg', 
-        'm-6': 'Logos/Métro/LIG_IDFM_C01376.svg', 
-        'm-7': 'Logos/Métro/LIG_IDFM_C01377.svg', 
-        'm-8': 'Logos/Métro/LIG_IDFM_C01378.svg', 
-        'm-9': 'Logos/Métro/LIG_IDFM_C01379.svg', 
-        'm-10': 'Logos/Métro/LIG_IDFM_C01380.svg', 
-        'm-11': 'Logos/Métro/LIG_IDFM_C01381.svg', 
-        'm-12': 'Logos/Métro/LIG_IDFM_C01382.svg', 
-        'm-13': 'Logos/Métro/LIG_IDFM_C01383.svg', 
-        'm-14': 'Logos/Métro/LIG_IDFM_C01384.svg', 
-        'm-3bis': 'Logos/Métro/picto-ligne-LIGIDFMC01386.1781406331.svg', 
-        'm-7bis': 'Logos/Métro/picto-ligne-LIGIDFMC01387.1781406331.svg'
+        // Métros
+        'm-1': 'Logos/Métro/LIG_IDFM_C01371.svg', 'm-2': 'Logos/Métro/LIG_IDFM_C01372.svg', 'm-3': 'Logos/Métro/LIG_IDFM_C01373.svg', 
+        'm-4': 'Logos/Métro/LIG_IDFM_C01374.svg', 'm-5': 'Logos/Métro/LIG_IDFM_C01375.svg', 'm-6': 'Logos/Métro/LIG_IDFM_C01376.svg', 
+        'm-7': 'Logos/Métro/LIG_IDFM_C01377.svg', 'm-8': 'Logos/Métro/LIG_IDFM_C01378.svg', 'm-9': 'Logos/Métro/LIG_IDFM_C01379.svg', 
+        'm-10': 'Logos/Métro/LIG_IDFM_C01380.svg', 'm-11': 'Logos/Métro/LIG_IDFM_C01381.svg', 'm-12': 'Logos/Métro/LIG_IDFM_C01382.svg', 
+        'm-13': 'Logos/Métro/LIG_IDFM_C01383.svg', 'm-14': 'Logos/Métro/LIG_IDFM_C01384.svg', 
+        'm-3bis': 'Logos/Métro/picto-ligne-LIGIDFMC01386.1781406331.svg', 'm-7bis': 'Logos/Métro/picto-ligne-LIGIDFMC01387.1781406331.svg',
+        
+        // RER (Calé exactement sur ton nouveau dossier Rer avec la majuscule)
+        'r-A': 'Logos/Rer/LIG_IDFM_C01743.svg',
+        'r-B': 'Logos/Rer/LIG_IDFM_C01742.svg',
+        'r-C': 'Logos/Rer/LIG_IDFM_C01718.svg',
+        'r-D': 'Logos/Rer/LIG_IDFM_C01727.svg',
+        'r-E': 'Logos/Rer/LIG_IDFM_C01728.svg'
     };
 
     const metros = ['1','2','3','3bis','4','5','6','7','7bis','8','9','10','11','12','13','14'];
@@ -82,17 +79,18 @@
         mGrid.appendChild(img);
     });
 
-    // Génération RER
+    // Génération RER avec les vrais logos images maintenant !
     const rGrid = document.getElementById('r-grid');
     rers.forEach(l => {
-        const txtBtn = document.createElement('div');
-        txtBtn.className = 'text-btn rer';
-        txtBtn.innerText = `RER ${l}`;
-        txtBtn.onclick = () => verifTrafic('rer', l);
-        rGrid.appendChild(txtBtn);
+        const img = document.createElement('img');
+        img.className = 'line-btn';
+        img.src = codesImages[`r-${l}`]; 
+        img.alt = `RER ${l}`;
+        img.onclick = () => verifTrafic('rer', l);
+        rGrid.appendChild(img);
     });
 
-    // Génération Trams
+    // Génération Trams (Boutons orange propres)
     const tGrid = document.getElementById('t-grid');
     trams.forEach(l => {
         const txtBtn = document.createElement('div');
