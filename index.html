@@ -17,9 +17,15 @@
         .line-btn { height: 34px; cursor: pointer; transition: transform 0.1s; user-select: none; }
         .line-btn:hover { transform: scale(1.2); }
         
-        /* Boutons de secours pour le Tram uniquement */
-        .text-btn { display: inline-flex; align-items: center; justify-content: center; height: 34px; min-width: 34px; border-radius: 50%; background: #002f6c; color: #fff; font-weight: bold; font-size: 14px; cursor: pointer; user-select: none; padding: 0 5px; }
+        /* Boutons de secours au cas où un RER ou le 7bis bug encore */
+        .text-btn { display: inline-flex; align-items: center; justify-content: center; height: 34px; min-width: 34px; border-radius: 50%; color: #fff; font-weight: bold; font-size: 14px; cursor: pointer; user-select: none; padding: 0 5px; }
         .text-btn:hover { transform: scale(1.2); }
+        .text-btn.rer-A { background: #d3013a; border-radius: 4px; }
+        .text-btn.rer-B { background: #2367b1; border-radius: 4px; }
+        .text-btn.rer-C { background: #fccd04; color: #000; border-radius: 4px; }
+        .text-btn.rer-D { background: #008246; border-radius: 4px; }
+        .text-btn.rer-E { background: #bd76a1; border-radius: 4px; }
+        .text-btn.m-7bis { background: #71c181; color: #000; }
         .text-btn.tram { border-radius: 4px; background: #ff8000; }
 
         .incident-report { margin-top: 30px; padding: 20px; background-color: #fff; border-radius: 8px; border: 2px solid #ddd; display: none; }
@@ -45,32 +51,16 @@
 </div>
 
 <script>
-    // Configuration calée à 100% sur tes dossiers "Logos/Métro/" et "Logos/RER/"
     const codesImages = {
-        // Métros anciens noms restaurés
-        'm-1': 'Logos/Métro/LIG_IDFM_C01371.svg', 
-        'm-2': 'Logos/Métro/LIG_IDFM_C01372.svg', 
-        'm-3': 'Logos/Métro/LIG_IDFM_C01373.svg', 
-        'm-4': 'Logos/Métro/LIG_IDFM_C01374.svg', 
-        'm-5': 'Logos/Métro/LIG_IDFM_C01375.svg', 
-        'm-6': 'Logos/Métro/LIG_IDFM_C01376.svg', 
-        'm-7': 'Logos/Métro/LIG_IDFM_C01377.svg', 
-        'm-8': 'Logos/Métro/LIG_IDFM_C01378.svg', 
-        'm-9': 'Logos/Métro/LIG_IDFM_C01379.svg', 
-        'm-10': 'Logos/Métro/LIG_IDFM_C01380.svg', 
-        'm-11': 'Logos/Métro/LIG_IDFM_C01381.svg', 
-        'm-12': 'Logos/Métro/LIG_IDFM_C01382.svg', 
-        'm-13': 'Logos/Métro/LIG_IDFM_C01383.svg', 
-        'm-14': 'Logos/Métro/LIG_IDFM_C01384.svg', 
+        'm-1': 'Logos/Métro/LIG_IDFM_C01371.svg', 'm-2': 'Logos/Métro/LIG_IDFM_C01372.svg', 'm-3': 'Logos/Métro/LIG_IDFM_C01373.svg', 
+        'm-4': 'Logos/Métro/LIG_IDFM_C01374.svg', 'm-5': 'Logos/Métro/LIG_IDFM_C01375.svg', 'm-6': 'Logos/Métro/LIG_IDFM_C01376.svg', 
+        'm-7': 'Logos/Métro/LIG_IDFM_C01377.svg', 'm-8': 'Logos/Métro/LIG_IDFM_C01378.svg', 'm-9': 'Logos/Métro/LIG_IDFM_C01379.svg', 
+        'm-10': 'Logos/Métro/LIG_IDFM_C01380.svg', 'm-11': 'Logos/Métro/LIG_IDFM_C01381.svg', 'm-12': 'Logos/Métro/LIG_IDFM_C01382.svg', 
+        'm-13': 'Logos/Métro/LIG_IDFM_C01383.svg', 'm-14': 'Logos/Métro/LIG_IDFM_C01384.svg', 
         'm-3bis': 'Logos/Métro/picto-ligne-LIGIDFMC01386.1781406331.svg', 
-        'm-7bis': 'Logos/Métro/métro.svg', // Ta modif sur le 7bis prise en compte !
+        'm-7bis': 'Logos/Métro/mélo.svg', // Correction orthographe exacte (mélo)
         
-        // RER calés sur ton dossier "Logos/RER/" et tes nouveaux noms simples
-        'r-A': 'Logos/RER/rer a.svg',
-        'r-B': 'Logos/RER/rer b.svg',
-        'r-C': 'Logos/RER/rer c.svg',
-        'r-D': 'Logos/RER/rer d.svg',
-        'r-E': 'Logos/RER/rer e.svg'
+        'r-A': 'Logos/RER/rer a.svg', 'r-B': 'Logos/RER/rer b.svg', 'r-C': 'Logos/RER/rer c.svg', 'r-D': 'Logos/RER/rer d.svg', 'r-E': 'Logos/RER/rer e.svg'
     };
 
     const metros = ['1','2','3','3bis','4','5','6','7','7bis','8','9','10','11','12','13','14'];
@@ -85,10 +75,18 @@
         img.src = codesImages[`m-${l}`]; 
         img.alt = `Métro ${l}`;
         img.onclick = () => verifTrafic('metro', l);
+        img.onerror = function() {
+            // Sécurité ultime si le 7bis a encore un bug de nom sur ton PC
+            const txtBtn = document.createElement('div');
+            txtBtn.className = `text-btn m-${l}`;
+            txtBtn.innerText = l;
+            txtBtn.onclick = () => verifTrafic('metro', l);
+            img.replaceWith(txtBtn);
+        };
         mGrid.appendChild(img);
     });
 
-    // Grille RER
+    // Grille RER (Double test .svg ou .SVG, et sécurité bouton officiel coloré si échec)
     const rGrid = document.getElementById('r-grid');
     rers.forEach(l => {
         const img = document.createElement('img');
@@ -96,6 +94,21 @@
         img.src = codesImages[`r-${l}`]; 
         img.alt = `RER ${l}`;
         img.onclick = () => verifTrafic('rer', l);
+        
+        img.onerror = function() {
+            if (!this.dataset.triedCaps) {
+                this.dataset.triedCaps = true;
+                // Si le .svg minuscule foire, on teste en MAJUSCULES .SVG
+                this.src = `Logos/RER/rer ${l.toLowerCase()}.SVG`;
+            } else {
+                // Si tout foire, on génère un bouton parfait aux couleurs officielles de la ligne
+                const txtBtn = document.createElement('div');
+                txtBtn.className = `text-btn rer-${l}`;
+                txtBtn.innerText = `RER ${l}`;
+                txtBtn.onclick = () => verifTrafic('rer', l);
+                img.replaceWith(txtBtn);
+            }
+        };
         rGrid.appendChild(img);
     });
 
