@@ -32,7 +32,7 @@
 <body>
 
 <div class="container">
-    <h1><i class="fa-solid fa-train-subway"></i> Information trafic en Temps Réel (Direct API)</h1>
+    <h1><i class="fa-solid fa-train-subway"></i> Information trafic en Temps Réel</h1>
 
     <div class="section-transport"><div class="type-label">Métro</div><div class="lines-grid" id="m-grid"></div></div>
     <div class="section-transport"><div class="type-label">RER</div><div class="lines-grid" id="r-grid"></div></div>
@@ -78,7 +78,7 @@
         img.className = 'line-btn';
         img.src = codesImages[`rer-${l}`];
         img.alt = `RER ${l}`;
-        img.onclick = () => verifTric('rer', l);
+        img.onclick = () => verifTrafic('rer', l); // ERREUR CORRIGÉE ICI MON REUF !
         rGrid.appendChild(img);
     });
 
@@ -99,40 +99,35 @@
         
         title.innerHTML = `<i class="fa-solid fa-circle-info"></i> État du trafic - ${type.toUpperCase()} ${ligne}`;
         box.classList.add('active');
-        text.innerHTML = "Analyse des perturbations en cours...";
+        text.innerHTML = "Connexion directe aux flux RATP en cours...";
 
-        const urlApi = type === 'metro' ? 'https://data.ratp.fr/api/explore/v2.1/catalog/datasets/trafic-metro-ratp/records?limit=30' :
-                       type === 'rer' ? 'https://data.ratp.fr/api/explore/v2.1/catalog/datasets/trafic-rers-ratp/records?limit=10' :
-                       'https://data.ratp.fr/api/explore/v2.1/catalog/datasets/trafic-tramways-ratp/records?limit=20';
-
-        fetch(urlApi)
+        // On interroge l'API en direct depuis le navigateur
+        fetch('https://api-ratp.melvin.io/v1/traffic')
             .then(res => res.json())
             .then(data => {
-                const résultats = data.results || [];
+                const resultats = data.result || {};
+                const key = type === 'metro' ? 'metros' : (type === 'rer' ? 'rers' : 'trams');
+                const listeLignes = resultats[key] || [];
                 
-                // RECHERCHE LARGE : trouve la ligne même si la RATP écrit "RER A" ou "A" ou "0A"
-                const laLigne = résultats.find(item => {
-                    const ligneBrute = item.ligne.toString().toUpperCase().trim();
-                    const cible = ligne.toString().toUpperCase().trim();
-                    return ligneBrute === cible || ligneBrute.includes(cible) || cible.includes(ligneBrute);
-                });
+                // On cherche la ligne de manière super intelligente (sans bloquer sur la casse)
+                const laLigne = listeLignes.find(item => 
+                    item.line.toString().toUpperCase().trim() === ligne.toString().toUpperCase().trim()
+                );
                 
                 if (laLigne) {
-                    const msg = laLigne.texte || "";
-                    const titreMsg = laLigne.titre || "";
-                    const estNormal = msg.toLowerCase().includes("normal") || titreMsg.toLowerCase().includes("normal") || msg === "";
-
-                    if (!estNormal) {
-                        text.innerHTML = `<div class="warning"><strong>⚠️ ${titreMsg || 'Perturbation signalée'}</strong><br>${msg}</div>`;
+                    if (laLigne.slug !== "normal") {
+                        // Ça clignote en rouge s'il y a un problème !
+                        text.innerHTML = `<div class="warning"><strong>⚠️ ${laLigne.title || 'Perturbation'}</strong><br>${laLigne.message}</div>`;
                     } else {
-                        text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>${msg || 'Le trafic est fluide sur l\'ensemble de la ligne.'}</div>`;
+                        // C'est tout vert si tout va bien
+                        text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>${laLigne.message || 'Le trafic est normal sur l\'ensemble de la ligne.'}</div>`;
                     }
                 } else {
-                    text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>Aucun incident majeur à signaler sur cette ligne.</div>`;
+                    text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>Aucun incident majeur à signaler.</div>`;
                 }
             })
             .catch(() => { 
-                text.innerHTML = "<span style='color:red;'>Erreur de connexion en direct avec l'API Open Data.</span>"; 
+                text.innerHTML = "<span style='color:red;'>Erreur de connexion en direct. Les serveurs RATP dorment peut-être.</span>"; 
             });
     }
 </script>
