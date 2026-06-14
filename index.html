@@ -17,10 +17,10 @@
         .line-btn { height: 34px; cursor: pointer; transition: transform 0.1s; user-select: none; }
         .line-btn:hover { transform: scale(1.2); }
         
-        /* Boutons de secours */
+        /* Boutons de secours au cas où une image foire */
         .text-btn { display: inline-flex; align-items: center; justify-content: center; height: 34px; min-width: 34px; border-radius: 50%; color: #fff; font-weight: bold; font-size: 14px; cursor: pointer; user-select: none; padding: 0 5px; }
         .text-btn:hover { transform: scale(1.2); }
-        .text-btn.tram { border-radius: 4px; background: #ff8000; }
+        .text-btn.tram-default { border-radius: 4px; background: #ff8000; }
 
         .incident-report { margin-top: 30px; padding: 20px; background-color: #fff; border-radius: 8px; border: 2px solid #ddd; display: none; }
         .incident-report.active { display: block; }
@@ -55,12 +55,18 @@
         'metro-3bis': 'Logos/Métro/picto-ligne-LIGIDFMC01386.1781406331.svg', 
         'metro-7bis': 'Logos/Métro/picto-ligne-LIGIDFMC01387.1781406331.svg',
         
-        // RER - Calés STRICTEMENT sur tes fichiers réels avec l'espace encodé en %20.svg
-        'rer-A': 'Logos/RER/rer%20a.svg', 
-        'rer-B': 'Logos/RER/rer%20b.svg', 
-        'rer-C': 'Logos/RER/rer%20c.svg', 
-        'rer-D': 'Logos/RER/rer%20d.svg', 
-        'rer-E': 'Logos/RER/rer%20e.svg'
+        // RER
+        'rer-A': 'Logos/RER/rer%20a.svg', 'rer-B': 'Logos/RER/rer%20b.svg', 'rer-C': 'Logos/RER/rer%20c.svg', 'rer-D': 'Logos/RER/rer%20d.svg', 'rer-E': 'Logos/RER/rer%20e.svg',
+
+        // TRAMS - Calés au poil près sur ton dossier "Logos/Tramway/" avec les T majuscules !
+        'tram-1': 'Logos/Tramway/T1.svg', 'tram-2': 'Logos/Tramway/T2.svg', 
+        'tram-3a': 'Logos/Tramway/T3A.svg', 'tram-3b': 'Logos/Tramway/T3B.svg', 
+        'tram-4': 'Logos/Tramway/T4.svg', 'tram-5': 'Logos/Tramway/T5.svg', 
+        'tram-6': 'Logos/Tramway/T6.svg', 'tram-7': 'Logos/Tramway/T7.svg', 
+        'tram-8': 'Logos/Tramway/T8.svg', 'tram-9': 'Logos/Tramway/T9.svg', 
+        'tram-10': 'Logos/Tramway/T10.svg', 'tram-11': 'Logos/Tramway/T11.svg', 
+        'tram-12': 'Logos/Tramway/T12.svg', 'tram-13': 'Logos/Tramway/T13.svg', 
+        'tram-14': 'Logos/Tramway/T14.svg'
     };
 
     const metros = ['1','2','3','3bis','4','5','6','7','7bis','8','9','10','11','12','13','14'];
@@ -89,14 +95,24 @@
         rGrid.appendChild(img);
     });
 
-    // Grille Tram
+    // Grille Tram - ACTIVÉE AVEC LES VRAIS LOGOS IMAGES !
     const tGrid = document.getElementById('t-grid');
     trams.forEach(l => {
-        const txtBtn = document.createElement('div');
-        txtBtn.className = 'text-btn tram';
-        txtBtn.innerText = `T${l}`;
-        txtBtn.onclick = () => verifTrafic('tram', l);
-        tGrid.appendChild(txtBtn);
+        const img = document.createElement('img');
+        img.className = 'line-btn';
+        img.src = codesImages[`tram-${l}`]; 
+        img.alt = `Tram ${l}`;
+        img.onclick = () => verifTrafic('tram', l);
+        
+        img.onerror = function() {
+            // Secours si un fichier manque : bouton orange propre
+            const txtBtn = document.createElement('div');
+            txtBtn.className = 'text-btn tram-default';
+            txtBtn.innerText = `T${l.toUpperCase()}`;
+            txtBtn.onclick = () => verifTrafic('tram', l);
+            img.replaceWith(txtBtn);
+        };
+        tGrid.appendChild(img);
     });
 
     function verifTrafic(type, ligne) {
@@ -104,7 +120,7 @@
         const title = document.getElementById('incident-title');
         const text = document.getElementById('incident-text');
         
-        title.innerHTML = `<i class="fa-solid fa-circle-info"></i> État du trafic - ${type.toUpperCase()} ${ligne}`;
+        title.innerHTML = `<i class="fa-solid fa-circle-info"></i> État du trafic - ${type.toUpperCase()} ${ligne.toUpperCase()}`;
         box.classList.add('active');
         text.innerHTML = "Chargement des infos...";
 
