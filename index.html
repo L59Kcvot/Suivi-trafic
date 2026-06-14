@@ -9,19 +9,11 @@
         body { font-family: Arial, sans-serif; background-color: #ffffff; color: #333; margin: 0; padding: 20px; }
         .container { max-width: 850px; margin: 0 auto; }
         h1 { font-size: 24px; margin-bottom: 25px; border-bottom: 2px solid #002f6c; padding-bottom: 10px; color: #002f6c; }
-        
         .section-transport { display: flex; align-items: center; margin-bottom: 20px; background: #fdfdfd; padding: 15px; border-radius: 8px; border: 1px solid #eee; }
         .type-label { width: 90px; font-weight: bold; color: #002f6c; font-size: 16px; text-transform: uppercase; }
         .lines-grid { display: flex; flex-wrap: wrap; gap: 10px; flex: 1; }
-        
-        .line-btn { 
-            height: 34px; 
-            cursor: pointer; 
-            transition: transform 0.1s; 
-            user-select: none;
-        }
+        .line-btn { height: 34px; cursor: pointer; transition: transform 0.1s; user-select: none; }
         .line-btn:hover { transform: scale(1.2); }
-        
         .incident-report { margin-top: 30px; padding: 20px; background-color: #fff; border-radius: 8px; border: 2px solid #ddd; display: none; }
         .incident-report.active { display: block; }
         .report-title { font-weight: bold; font-size: 18px; margin-bottom: 12px; color: #002f6c; display: flex; align-items: center; gap: 8px; }
@@ -68,7 +60,7 @@
         img.className = 'line-btn';
         img.src = codesImages[`m-${l}`]; 
         img.alt = `Métro ${l}`;
-        img.onclick = () => verifTrafic('metro', l);
+        img.onclick = () => verifTrafic('metros', l);
         mGrid.appendChild(img);
     });
 
@@ -78,7 +70,7 @@
         img.className = 'line-btn';
         img.src = codesImages[`rer-${l}`];
         img.alt = `RER ${l}`;
-        img.onclick = () => verifTrafic('rer', l);
+        img.onclick = () => verifTrafic('rers', l);
         rGrid.appendChild(img);
     });
 
@@ -88,50 +80,37 @@
         img.className = 'line-btn';
         img.src = codesImages[`tram-${l}`];
         img.alt = `Tram ${l}`;
-        img.onclick = () => verifTrafic('tram', l);
+        img.onclick = () => verifTrafic('trams', l);
         tGrid.appendChild(img);
     });
 
-    function verifTrafic(type, ligne) {
+    function verifTrafic(cleJson, ligne) {
         const box = document.getElementById('incident-box');
         const title = document.getElementById('incident-title');
         const text = document.getElementById('incident-text');
         
-        title.innerHTML = `<i class="fa-solid fa-circle-info"></i> État du trafic - ${type.toUpperCase()} ${ligne}`;
+        title.innerHTML = `<i class="fa-solid fa-circle-info"></i> État du trafic - ${ligne.toUpperCase()}`;
         box.classList.add('active');
-        text.innerHTML = "Interrogation directe de l'API Temps Réel...";
+        text.innerHTML = "Lecture des données IDFM...";
 
-        // Connexion à la meilleure API ouverte d'Île-de-France (Pas de blocage CORS, synchro seconde)
-        fetch('https://api.vianavigo.com/v1/traffic')
-            .catch(() => fetch('https://gbfs.ratp.fr/v1/idf/traffic')) // Secours si panne réseau
+        fetch('trafic.json?v=' + new Date().getTime())
             .then(res => res.json())
             .then(data => {
-                const liste = data.lines || data.result || [];
+                const listeLignes = data[cleJson] || [];
                 
-                // Recherche intelligente : trouve "A", "1", "3bis" dans le flux
-                const laLigne = liste.find(item => 
-                    item.code.toString().toUpperCase().trim() === ligne.toUpperCase().trim() ||
-                    item.name.toString().toUpperCase().includes(type.toUpperCase() + " " + ligne.toUpperCase())
-                );
+                // Recherche exacte de la ligne dans notre fichier généré par le Token
+                const laLigne = listeLignes.find(item => item.line.toString().toUpperCase().trim() === ligne.toUpperCase().trim());
                 
-                if (laLigne) {
-                    const statut = (laLigne.status || laLigne.slug || "").toLowerCase();
-                    const messageText = laLigne.message || laLigne.text || "";
-                    const titreText = laLigne.title || "Incident signalé";
-
-                    // Si le statut dit qu'il y a un problème (pas normal/regular)
-                    if (statut.includes('incident') || statut.includes('critical') || statut.includes('alert') || !statut.includes('normal')) {
-                        text.innerHTML = `<div class="warning"><strong>⚠️ ${titreText}</strong><br>${messageText}</div>`;
-                    } else {
-                        text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>${messageText || 'Le trafic est fluide sur l\'ensemble de la ligne.'}</div>`;
-                    }
+                if (laLigne && laLigne.slug !== "normal") {
+                    text.innerHTML = `<div class="warning"><strong>⚠️ ${laLigne.title}</strong><br>${laLigne.message}</div>`;
+                } else if (laLigne) {
+                    text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>${laLigne.message}</div>`;
                 } else {
-                    text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>Aucun incident majeur à signaler.</div>`;
+                    text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>Aucun incident majeur à signaler sur cette ligne.</div>`;
                 }
             })
-            .catch(() => {
-                // Solution de secours ultime en texte brut
-                text.innerHTML = "<span style='color:red;'>Erreur de connexion. L'API est surchargée, réessaye.</span>";
+            .catch(() => { 
+                text.innerHTML = "<span style='color:red;'>Erreur : le fichier de trafic est vide. Lance le robot dans l'onglet Actions.</span>"; 
             });
     }
 </script>
