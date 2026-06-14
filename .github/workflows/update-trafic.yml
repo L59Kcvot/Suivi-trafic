@@ -2,13 +2,15 @@ name: Update RATP Traffic Data
 
 on:
   schedule:
-    # Le robot va s'exécuter toutes les 30 minutes automatiquement
     - cron: '*/30 * * * *'
-  workflow_dispatch: # Option pour pouvoir le lancer à la main pour tester
+  workflow_dispatch:
 
 jobs:
   update-data:
     runs-on: ubuntu-latest
+    # On force la déclaration des droits ici au cas où l'interface GitHub bugue
+    permissions:
+      contents: write
     steps:
     - name: Checkout du code
       uses: actions/checkout@v4
@@ -23,8 +25,8 @@ jobs:
 
     - name: Sauvegarde et Commit du fichier JSON sur GitHub
       run: |
-        git config --global user.name 'GitHub Actions Bot'
-        git config --global user.email 'actions@github.com'
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
         git add trafic.json
         git commit -m "Mise à jour auto du trafic" || exit 0
-        git push
+        git push origin main
