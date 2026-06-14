@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suivi Trafic Île-de-France</title>
+    <title>Suivi Trafic Île-de-France Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { font-family: Arial, sans-serif; background-color: #ffffff; color: #333; margin: 0; padding: 20px; }
@@ -14,47 +14,15 @@
         .type-label { width: 90px; font-weight: bold; color: #002f6c; font-size: 16px; text-transform: uppercase; }
         .lines-grid { display: flex; flex-wrap: wrap; gap: 10px; flex: 1; }
         
+        /* Style des boutons images */
         .line-btn { 
-            height: 34px; width: 34px; cursor: pointer; transition: transform 0.1s; 
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-            font-weight: bold; font-size: 14px; color: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15); border: 1px solid rgba(0,0,0,0.1); user-select: none;
+            height: 34px; 
+            cursor: pointer; 
+            transition: transform 0.1s; 
+            user-select: none;
         }
-        .line-btn.rer { border-radius: 6px; font-size: 16px; }
-        .line-btn:hover { transform: scale(1.18); }
+        .line-btn:hover { transform: scale(1.2); }
         
-        /* Couleurs IDFM */
-        .m-1 { background-color: #ffcd00; color: #000; }
-        .m-2 { background-color: #00643c; }
-        .m-3 { background-color: #9f9825; }
-        .m-3bis { background-color: #98d4e6; color: #000; }
-        .m-4 { background-color: #c04191; }
-        .m-5 { background-color: #f28b00; }
-        .m-6 { background-color: #79bb92; color: #000; }
-        .m-7 { background-color: #f59fb7; color: #000; }
-        .m-7bis { background-color: #79bb92; color: #000; }
-        .m-8 { background-color: #9f7bba; }
-        .m-9 { background-color: #d2e100; color: #000; }
-        .m-10 { background-color: #e3b32a; color: #000; }
-        .m-11 { background-color: #8f613c; }
-        .m-12 { background-color: #007c5a; }
-        .m-13 { background-color: #8ed8f2; color: #000; }
-        .m-14 { background-color: #622280; }
-        .rer-A { background-color: #c40000; }
-        .rer-B { background-color: #0066cc; }
-        .rer-C { background-color: #f2ba00; color: #000; }
-        .rer-D { background-color: #005522; }
-        .rer-E { background-color: #e0007b; }
-        .tram-1 { background-color: #0033aa; }
-        .tram-2 { background-color: #e0007b; }
-        .tram-3a { background-color: #ff4400; }
-        .tram-3b { background-color: #00aa55; }
-        .tram-4 { background-color: #f2ba00; color: #000; }
-        .tram-5 { background-color: #8f613c; }
-        .tram-6 { background-color: #c04191; }
-        .tram-7 { background-color: #79bb92; color: #000; }
-        .tram-8 { background-color: #9f7bba; }
-
         .incident-report { margin-top: 30px; padding: 20px; background-color: #fff; border-radius: 8px; border: 2px solid #ddd; display: none; }
         .incident-report.active { display: block; }
         .report-title { font-weight: bold; font-size: 18px; margin-bottom: 12px; color: #002f6c; display: flex; align-items: center; gap: 8px; }
@@ -78,26 +46,72 @@
 </div>
 
 <script>
+    // Le dictionnaire mis à jour avec les fichiers exacts
+    const codesImages = {
+        // Métros classiques (juste le code, l'extension se gère après)
+        'm-1': 'LIG_IDFM_C01371.svg', 'm-2': 'LIG_IDFM_C01372.svg', 'm-3': 'LIG_IDFM_C01373.svg', 
+        'm-4': 'LIG_IDFM_C01374.svg', 'm-5': 'LIG_IDFM_C01375.svg', 'm-6': 'LIG_IDFM_C01376.svg', 
+        'm-7': 'LIG_IDFM_C01377.svg', 'm-8': 'LIG_IDFM_C01381.svg', 'm-9': 'LIG_IDFM_C01382.svg', 
+        'm-10': 'LIG_IDFM_C01383.svg', 'm-11': 'LIG_IDFM_C01384.svg', 'm-12': 'LIG_IDFM_C01385.svg', 
+        'm-13': 'LIG_IDFM_C01386.svg', 'm-14': 'LIG_IDFM_C01387.svg',
+        
+        // Tes deux blazes relous de l'APK (on met l'extension directe)
+        'm-3bis': 'picto-ligne-LIGIDFMC01386.1781406331', 
+        'm-7bis': 'picto-ligne-LIGIDFMC01387.1781406331',
+        
+        // RER
+        'rer-A': 'LIG_IDFM_C01742.svg', 'rer-B': 'LIG_IDFM_C01743.svg', 'rer-C': 'LIG_IDFM_C01744.svg', 'rer-D': 'LIG_IDFM_C01745.svg', 'rer-E': 'LIG_IDFM_C01746.svg',
+        
+        // Trams
+        'tram-1': 'LIG_IDFM_C01389.svg', 'tram-2': 'LIG_IDFM_C01390.svg', 'tram-3a': 'LIG_IDFM_C01391.svg', 'tram-3b': 'LIG_IDFM_C01392.svg', 
+        'tram-4': 'LIG_IDFM_C01819.svg', 'tram-5': 'LIG_IDFM_C01684.svg', 'tram-6': 'LIG_IDFM_C01794.svg', 'tram-7': 'LIG_IDFM_C01795.svg', 
+        'tram-8': 'LIG_IDFM_C01796.svg', 'tram-9': 'LIG_IDFM_C02317.svg'
+    };
+
     const metros = ['1','2','3','3bis','4','5','6','7','7bis','8','9','10','11','12','13','14'];
     const rers = ['A','B','C','D','E'];
-    const trams = ['1','2','3a','3b','4','5','6','7','8'];
+    const trams = ['1','2','3a','3b','4','5','6','7','8','9'];
 
+    // Génération Métros
     const mGrid = document.getElementById('m-grid');
     metros.forEach(l => {
-        const div = document.createElement('div'); div.className = `line-btn m-${l}`; div.innerText = l;
-        div.onclick = () => verifTrafic('metro', l); mGrid.appendChild(div);
+        const img = document.createElement('img');
+        img.className = 'line-btn';
+        
+        const nomFichier = codesImages[`m-${l}`];
+        // Si c'est une ligne bis, on lui rajoute l'extension qu'elle a sur ton GitHub (.png ou .svg)
+        // Note : Ajuste ici si tes fichiers bis se finissent par .png ou .svg dans ton GitHub !
+        if (l === '3bis' || l === '7bis') {
+            img.src = `${nomFichier}.svg`; 
+        } else {
+            img.src = nomFichier;
+        }
+        
+        img.alt = `Métro ${l}`;
+        img.onclick = () => verifTrafic('metro', l);
+        mGrid.appendChild(img);
     });
 
+    // Génération RER
     const rGrid = document.getElementById('r-grid');
     rers.forEach(l => {
-        const div = document.createElement('div'); div.className = `line-btn rer rer-${l}`; div.innerText = l;
-        div.onclick = () => verifTrafic('rer', l); rGrid.appendChild(div);
+        const img = document.createElement('img');
+        img.className = 'line-btn';
+        img.src = codesImages[`rer-${l}`];
+        img.alt = `RER ${l}`;
+        img.onclick = () => verifTrafic('rer', l);
+        rGrid.appendChild(img);
     });
 
+    // Génération Trams
     const tGrid = document.getElementById('t-grid');
     trams.forEach(l => {
-        const div = document.createElement('div'); div.className = `line-btn tram-${l}`; div.innerText = `T${l}`;
-        div.onclick = () => verifTrafic('tram', l); tGrid.appendChild(div);
+        const img = document.createElement('img');
+        img.className = 'line-btn';
+        img.src = codesImages[`tram-${l}`];
+        img.alt = `Tram ${l}`;
+        img.onclick = () => verifTrafic('tram', l);
+        tGrid.appendChild(img);
     });
 
     function verifTrafic(type, ligne) {
@@ -112,7 +126,6 @@
         fetch('trafic.json')
             .then(res => res.json())
             .then(data => {
-                // Correspondance avec les clés du nouveau JSON
                 const key = type === 'metro' ? 'metros' : (type === 'rer' ? 'rers' : 'trams');
                 const listeLignes = data[key] || [];
                 
@@ -125,7 +138,7 @@
                 }
             })
             .catch(() => { 
-                text.innerHTML = "<span style='color:red;'>Erreur de lecture du fichier JSON. Recommence l'étape de l'onglet Actions.</span>"; 
+                text.innerHTML = "<span style='color:red;'>Erreur de lecture du trafic. Vérifie le statut du robot dans Actions.</span>"; 
             });
     }
 </script>
