@@ -29,7 +29,7 @@
             justify-content: flex-start;
         }
         .type-icon {
-            height: 30px;
+            height: 26px;
             margin-right: 5px;
         }
         .lines-grid {
@@ -39,7 +39,7 @@
             flex: 1;
         }
         
-        /* Style des boutons images */
+        /* Style des boutons avec les vrais logos */
         .line-btn {
             height: 32px;
             cursor: pointer;
@@ -58,7 +58,7 @@
             display: none;
         }
         .incident-report.active { display: block; }
-        .report-title { font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #0066cc; display: flex; align-items: center; gap: 10px; }
+        .report-title { font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #0066cc; }
     </style>
 </head>
 <body>
@@ -67,22 +67,30 @@
     <h1>🔄 Information trafic en Temps Réel</h1>
 
     <div class="section-transport">
-        <div class="type-label" id="rer-logo-container"></div>
+        <div class="type-label">
+            <img class="type-icon" src="assets/modes/rer.png" alt="RER">
+        </div>
         <div class="lines-grid" id="rer-container"></div>
     </div>
 
     <div class="section-transport">
-        <div class="type-label" id="metro-logo-container"></div>
+        <div class="type-label">
+            <img class="type-icon" src="assets/modes/metro.png" alt="M">
+        </div>
         <div class="lines-grid" id="metro-container"></div>
     </div>
 
     <div class="section-transport">
-        <div class="type-label" id="tram-logo-container"></div>
+        <div class="type-label">
+            <img class="type-icon" src="assets/modes/tram.png" alt="T">
+        </div>
         <div class="lines-grid" id="tram-container"></div>
     </div>
 
     <div class="section-transport">
-        <div class="type-label" id="train-logo-container"></div>
+        <div class="type-label">
+            <img class="type-icon" src="assets/modes/train.png" alt="Train">
+        </div>
         <div class="lines-grid" id="train-container"></div>
     </div>
 
@@ -93,47 +101,33 @@
 </div>
 
 <script>
-    // Nouvelle source d'images Open Source ultra stable (merci la communauté !)
-    const baseUrl = "https://raw.githubusercontent.com/pfeofficial/baryon-assets/main/stif";
-
-    // Affichage des logos généraux des modes de transport à gauche
-    document.getElementById('rer-logo-container').innerHTML = `<img class="type-icon" src="${baseUrl}/modes/rer.png" alt="RER">`;
-    document.getElementById('metro-logo-container').innerHTML = `<img class="type-icon" src="${baseUrl}/modes/metro.png" alt="M">`;
-    document.getElementById('tram-logo-container').innerHTML = `<img class="type-icon" src="${baseUrl}/modes/tram.png" alt="T">`;
-    document.getElementById('train-logo-container').innerHTML = `<img class="type-icon" src="${baseUrl}/modes/train.png" alt="Train">`;
-
-    // Listes exactes correspondant aux noms des fichiers images disponibles
-    const rers = ['a', 'b', 'c', 'd', 'e'];
+    // Listes des lignes
+    const rers = ['A', 'B', 'C', 'D', 'E'];
     const metros = ['1', '2', '3', '3bis', '4', '5', '6', '7', '7bis', '8', '9', '10', '11', '12', '13', '14'];
-    const trams = ['1', '2', '3a', '3b', '4', '5', '6', '7', '8', '9']; // Trams principaux
-    const trains = ['h', 'j', 'k', 'l', 'n', 'p', 'r', 'u'];
+    const trams = ['1', '2', '3a', '3b', '4', '5', '6', '7', '8', '9'];
+    const trains = ['H', 'J', 'K', 'L', 'N', 'P', 'R', 'U'];
 
-    // Génération automatique des boutons avec les vrais logos PNG bien nets
+    // Génération automatique des images locales
     function genererBoutons(liste, type, containerId) {
         const container = document.getElementById(containerId);
         liste.forEach(ligne => {
             const img = document.createElement('img');
             img.className = 'line-btn';
-            
-            // Format du lien : .../stif/lines/metro_1.png ou rer_a.png
-            img.src = `${baseUrl}/lines/${type}_${ligne}.png`;
+            // Va chercher l'image directement dans ton dossier assets/lines/
+            img.src = `assets/lines/${type.toLowerCase()}_${ligne.toLowerCase()}.png`;
             img.alt = `${type} ${ligne}`;
             
-            // On prépare le nom pour la recherche de texte (ex: "RER A" ou "Ligne 1")
-            const nomRecherche = type === 'metro' ? `Ligne ${ligne}` : `${type.toUpperCase()} ${ligne.toUpperCase()}`;
+            const nomRecherche = type === 'Métro' ? `Ligne ${ligne}` : `${type.toUpperCase()} ${ligne.toUpperCase()}`;
             img.onclick = () => checkLigne(nomRecherche);
-            
             container.appendChild(img);
         });
     }
 
-    // Lancement de la génération
-    genererBoutons(rers, 'rer', 'rer-container');
-    genererBoutons(metros, 'metro', 'metro-container');
-    genererBoutons(trams, 'tram', 'tram-container');
-    genererBoutons(trains, 'train', 'train-container');
+    genererBoutons(rers, 'RER', 'rer-container');
+    genererBoutons(metros, 'Métro', 'metro-container');
+    genererBoutons(trams, 'Tram', 'tram-container');
+    genererBoutons(trains, 'Train', 'train-container');
 
-    // Recherche des incidents
     function checkLigne(nomLigne) {
         const box = document.getElementById('incident-box');
         const title = document.getElementById('incident-title');
@@ -146,7 +140,6 @@
             .then(res => res.json())
             .then(data => {
                 let incidentTrouve = "";
-                
                 if (data.resultats) {
                     data.resultats.forEach(item => {
                         if (item.texte && item.texte.toLowerCase().includes(nomLigne.toLowerCase())) {
@@ -154,16 +147,9 @@
                         }
                     });
                 }
-                
-                if (incidentTrouve !== "") {
-                    text.innerHTML = incidentTrouve;
-                } else {
-                    text.innerHTML = "✅ **Trafic régulier.** Aucune perturbation majeure signalée sur cette ligne.";
-                }
+                text.innerHTML = incidentTrouve !== "" ? incidentTrouve : "✅ **Trafic régulier.** Aucune perturbation majeure signalée sur cette ligne.";
             })
-            .catch(() => {
-                text.innerText = "Erreur de chargement. Attends que le robot ait fini d'écrire les données.";
-            });
+            .catch(() => { text.innerText = "Erreur de chargement des données."; });
     }
 </script>
 
