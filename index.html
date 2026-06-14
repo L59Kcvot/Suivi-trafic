@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suivi Trafic Île-de-France</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 { text-align: center; color: #00b0ff; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .ligne-card {
+            background-color: #1e1e1e;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 5px solid #666;
+        }
+        .status-ok { border-left-color: #4caf50; }
+        .status-warning { border-left-color: #ff9800; }
+        .status-danger { border-left-color: #f44336; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Suivi du Trafic en Temps Réel</h1>
+        <p style="text-align: center;">Dernière mise à jour : <span id="update-time">--:--</span></p>
+        
+        <div id="trafic-list">
+            <p style="text-align: center;">Chargement des données du tiécar...</p>
+        </div>
+    </div>
+
+    <script>
+        // Le site va chercher le fichier JSON généré par le robot
+        fetch('trafic.json')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('update-time').innerText = new Date(data.derniereMiseAJour).toLocaleString('fr-FR');
+                
+                const listContainer = document.getElementById('trafic-list');
+                listContainer.innerHTML = ''; // On vide le message de chargement
+
+                // Si l'API renvoie des métros
+                if (data.resultats && data.resultats.metros) {
+                    data.resultats.metros.forEach(metro => {
+                        const card = document.createElement('div');
+                        card.className = 'ligne-card';
+                        
+                        // Changement de couleur selon l'état
+                        if (metro.slug === 'normal') card.classList.add('status-ok');
+                        else if (metro.slug === 'critical') card.classList.add('status-danger');
+                        else card.classList.add('status-warning');
+
+                        card.innerHTML = `
+                            <strong>Métro Ligne ${metro.line}</strong> - Status: ${metro.title}<br>
+                            <small>${metro.message}</small>
+                        `;
+                        listContainer.appendChild(card);
+                    });
