@@ -3,62 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suivi Trafic Île-de-France Officiel</title>
+    <title>Suivi Trafic IDF Pro</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #ffffff;
-            color: #333333;
-            margin: 0;
-            padding: 20px;
-        }
-        .container { max-width: 1000px; margin: 0 auto; }
-        h1 { font-size: 24px; color: #111; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-        
-        .section-transport {
-            display: flex;
-            align-items: center;
-            margin-top: 15px;
-            border-top: 1px solid #ddd;
-            padding-top: 15px;
-        }
-        .type-label {
-            width: 90px;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-        }
-        .type-icon {
-            height: 24px;
-            margin-right: 5px;
-        }
-        .lines-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            flex: 1;
-        }
-        
-        /* Style des boutons images */
-        .line-btn {
-            height: 32px;
-            cursor: pointer;
-            transition: transform 0.1s;
-            user-select: none;
-        }
-        .line-btn:hover { transform: scale(1.15); }
-        
-        /* Fenêtre d'incidents */
-        .incident-report {
-            margin-top: 40px;
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            display: none;
-        }
+        body { font-family: Arial, sans-serif; background-color: #ffffff; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 850px; margin: 0 auto; }
+        h1 { font-size: 24px; margin-bottom: 25px; border-bottom: 2px solid #002f6c; padding-bottom: 10px; }
+        .section-transport { display: flex; align-items: center; margin-bottom: 20px; background: #f9f9f9; padding: 10px; border-radius: 8px; }
+        .type-label { width: 70px; font-weight: bold; color: #002f6c; font-size: 16px; }
+        .lines-grid { display: flex; flex-wrap: wrap; gap: 10px; flex: 1; }
+        .line-btn { height: 32px; width: 32px; cursor: pointer; transition: transform 0.1s; }
+        .line-btn:hover { transform: scale(1.2); }
+        .incident-report { margin-top: 30px; padding: 20px; background-color: #fff; border-radius: 8px; border: 2px solid #ddd; display: none; }
         .incident-report.active { display: block; }
-        .report-title { font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #0066cc; }
+        .report-title { font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #002f6c; }
+        .warning { color: #d32f2f; background: #ffebee; padding: 10px; border-radius: 4px; border-left: 4px solid #d32f2f; }
+        .success { color: #2e7d32; background: #e8f5e9; padding: 10px; border-radius: 4px; border-left: 4px solid #2e7d32; }
     </style>
 </head>
 <body>
@@ -66,108 +25,68 @@
 <div class="container">
     <h1>🔄 Information trafic en Temps Réel</h1>
 
-    <div class="section-transport">
-        <div class="type-label">
-            <img class="type-icon" src="https://data.iledefrance-mobilites.fr/assets/theme_image/idfm-rer.png" alt="RER" onerror="this.src='https://placehold.co/30x30?text=RER'">
-        </div>
-        <div class="lines-grid" id="rer-container"></div>
-    </div>
-
-    <div class="section-transport">
-        <div class="type-label">
-            <img class="type-icon" src="https://data.iledefrance-mobilites.fr/assets/theme_image/idfm-metro.png" alt="M" onerror="this.src='https://placehold.co/30x30?text=M'">
-        </div>
-        <div class="lines-grid" id="metro-container"></div>
-    </div>
-
-    <div class="section-transport">
-        <div class="type-label">
-            <img class="type-icon" src="https://data.iledefrance-mobilites.fr/assets/theme_image/idfm-tram.png" alt="T" onerror="this.src='https://placehold.co/30x30?text=T'">
-        </div>
-        <div class="lines-grid" id="tram-container"></div>
-    </div>
-
-    <div class="section-transport">
-        <div class="type-label">
-            <img class="type-icon" src="https://data.iledefrance-mobilites.fr/assets/theme_image/idfm-train.png" alt="Train" onerror="this.src='https://placehold.co/30x30?text=Train'">
-        </div>
-        <div class="lines-grid" id="train-container"></div>
-    </div>
+    <div class="section-transport"><div class="type-label">Métro</div><div class="lines-grid" id="m-grid"></div></div>
+    <div class="section-transport"><div class="type-label">RER</div><div class="lines-grid" id="r-grid"></div></div>
+    <div class="section-transport"><div class="type-label">Tram</div><div class="lines-grid" id="t-grid"></div></div>
 
     <div id="incident-box" class="incident-report">
         <div id="incident-title" class="report-title">Ligne</div>
-        <div id="incident-text">Sélectionne une ligne pour voir l'état du trafic du tiécar.</div>
+        <div id="incident-text">Sélectionne une ligne.</div>
     </div>
 </div>
 
 <script>
-    // URL de l'API de génération d'écussons d'IDFM / vianavigo
-    const imgUrl = "https://me-deplacer.iledefrance-mobilites.fr/assets/images/lines";
+    // Banque d'images de l'API ChloroFil (Vrais logos officiels)
+    const imgBase = "https://raw.githubusercontent.com/ChloroFil/api-ratp/master/assets";
+    
+    const metros = ['1','2','3','3bis','4','5','6','7','7bis','8','9','10','11','12','13','14'];
+    const rers = ['A','B','C','D','E'];
+    const trams = ['1','2','3a','3b','4','5','6','7','8'];
 
-    const rers = ['A', 'B', 'C', 'D', 'E'];
-    const metros = ['1', '2', '3', '3bis', '4', '5', '6', '7', '7bis', '8', '9', '10', '11', '12', '13', '14'];
-    const trams = ['1', '2', '3a', '3b', '4', '5', '6', '7', '8', '9'];
-    const trains = ['H', 'J', 'K', 'L', 'N', 'P', 'R', 'U'];
-
-    function genererBoutons(liste, typeDossier, typePourRecherche, containerId) {
-        const container = document.getElementById(containerId);
-        liste.forEach(ligne => {
+    function creerBoutons(liste, type, containerId) {
+        const grid = document.getElementById(containerId);
+        liste.forEach(l => {
             const img = document.createElement('img');
             img.className = 'line-btn';
-            
-            // Format des URLs officielles d'IDFM : .../lines/P_METRO/L_1.svg ou P_RER/L_A.svg
-            img.src = `${imgUrl}/P_${typeDossier.toUpperCase()}/L_${ligne.toUpperCase()}.svg`;
-            img.alt = `${typePourRecherche} ${ligne}`;
-            
-            // Si jamais une image saute, on affiche un texte propre de secours
-            img.onerror = function() {
-                this.style.display = 'none';
-                const txtFallback = document.createElement('span');
-                txtFallback.innerText = ligne;
-                txtFallback.style.padding = '5px 10px';
-                txtFallback.style.background = '#eee';
-                txtFallback.style.borderRadius = '4px';
-                txtFallback.style.cursor = 'pointer';
-                txtFallback.onclick = () => checkLigne(nomRecherche);
-                container.appendChild(txtFallback);
-            };
-            
-            const nomRecherche = typePourRecherche === 'Métro' ? `Ligne ${ligne}` : `${typePourRecherche.toUpperCase()} ${ligne.toUpperCase()}`;
-            img.onclick = () => checkLigne(nomRecherche);
-            container.appendChild(img);
+            img.src = `${imgBase}/${type}s/${l}.svg`; // Charge le vrai SVG officiel !
+            img.alt = `${type} ${l}`;
+            img.onclick = () => verifTrafic(type, l);
+            grid.appendChild(img);
         });
     }
 
-    // Génération
-    genererBoutons(rers, 'RER', 'RER', 'rer-container');
-    genererBoutons(metros, 'METRO', 'Métro', 'metro-container');
-    genererBoutons(trams, 'TRAM', 'Tram', 'tram-container');
-    genererBoutons(trains, 'TRAIN', 'Train', 'train-container');
+    creerBoutons(metros, 'metro', 'm-grid');
+    creerBoutons(rers, 'rer', 'r-grid');
+    creerBoutons(trams, 'tram', 't-grid');
 
-    function checkLigne(nomLigne) {
+    function verifTrafic(type, ligne) {
         const box = document.getElementById('incident-box');
         const title = document.getElementById('incident-title');
         const text = document.getElementById('incident-text');
         
-        title.innerText = `État du trafic - ${nomLigne}`;
+        title.innerText = `État du trafic - ${type.toUpperCase()} ${ligne}`;
         box.classList.add('active');
-        
+        text.innerHTML = "Chargement...";
+
         fetch('trafic.json')
             .then(res => res.json())
             .then(data => {
-                let incidentTrouve = "";
-                if (data.resultats) {
-                    data.resultats.forEach(item => {
-                        if (item.texte && item.texte.toLowerCase().includes(nomLigne.toLowerCase())) {
-                            incidentTrouve += `<p>⚠️ ${item.texte}</p>`;
-                        }
-                    });
+                const key = `${type}s`;
+                const listeLignes = data.resultats && data.resultats[key];
+                
+                // On cherche la ligne cliquée dans le JSON
+                const laLigne = listeLignes ? listeLignes.find(item => item.line.toLowerCase() === ligne.toLowerCase()) : null;
+                
+                if (laLigne && laLigne.slug !== "normal") {
+                    text.innerHTML = `<div class="warning"><strong>⚠️ ${laLigne.title}</strong><br>${laLigne.message}</div>`;
+                } else if (laLigne) {
+                    text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>${laLigne.message}</div>`;
+                } else {
+                    text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>Aucun incident signalé sur le réseau.</div>`;
                 }
-                text.innerHTML = incidentTrouve !== "" ? incidentTrouve : "✅ **Trafic régulier.** Aucune perturbation majeure signalée sur cette ligne.";
             })
-            .catch(() => { text.innerText = "Erreur de synchronisation du fichier JSON."; });
+            .catch(() => { text.innerHTML = "<span style='color:red;'>Erreur : relance le robot dans l'onglet Actions.</span>"; });
     }
 </script>
-
 </body>
 </html>
