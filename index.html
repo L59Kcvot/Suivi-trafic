@@ -12,8 +12,17 @@
         .section-transport { display: flex; align-items: center; margin-bottom: 20px; background: #fdfdfd; padding: 15px; border-radius: 8px; border: 1px solid #eee; }
         .type-label { width: 90px; font-weight: bold; color: #002f6c; font-size: 16px; text-transform: uppercase; }
         .lines-grid { display: flex; flex-wrap: wrap; gap: 10px; flex: 1; }
+        
+        /* Style pour les boutons-logos */
         .line-btn { height: 34px; cursor: pointer; transition: transform 0.1s; user-select: none; }
         .line-btn:hover { transform: scale(1.2); }
+        
+        /* Style texte de secours si l'image RER/Tram n'est pas encore sur ton GitHub */
+        .text-btn { display: inline-flex; align-items: center; justify-content: center; height: 34px; min-width: 34px; border-radius: 50%; background: #002f6c; color: #fff; font-weight: bold; font-size: 14px; cursor: pointer; user-select: none; padding: 0 5px; }
+        .text-btn:hover { transform: scale(1.2); }
+        .text-btn.rer { border-radius: 4px; background: #0055c8; }
+        .text-btn.tram { border-radius: 4px; background: #ff8000; }
+
         .incident-report { margin-top: 30px; padding: 20px; background-color: #fff; border-radius: 8px; border: 2px solid #ddd; display: none; }
         .incident-report.active { display: block; }
         .report-title { font-weight: bold; font-size: 18px; margin-bottom: 12px; color: #002f6c; display: flex; align-items: center; gap: 8px; }
@@ -37,7 +46,6 @@
 </div>
 
 <script>
-    // CORRECTION : Des clés uniques avec préfixe pour ne plus mélanger Métro 1 et Tram 1 !
     const idfmCodes = {
         'm-1': 'C01371', 'm-2': 'C01372', 'm-3': 'C01373', 'm-3bis': 'C01386', 'm-4': 'C01374',
         'm-5': 'C01375', 'm-6': 'C01376', 'm-7': 'C01377', 'm-7bis': 'C01387', 'm-8': 'C01378',
@@ -48,6 +56,7 @@
     };
 
     const codesImages = {
+        // Retour des .svg puisque tu m'as confirmé qu'ils y sont bien !
         'm-1': 'logos/LIG_IDFM_C01371.svg', 'm-2': 'logos/LIG_IDFM_C01372.svg', 'm-3': 'logos/LIG_IDFM_C01373.svg', 
         'm-4': 'logos/LIG_IDFM_C01374.svg', 'm-5': 'logos/LIG_IDFM_C01375.svg', 'm-6': 'logos/LIG_IDFM_C01376.svg', 
         'm-7': 'logos/LIG_IDFM_C01377.svg', 'm-8': 'logos/LIG_IDFM_C01378.svg', 'm-9': 'logos/LIG_IDFM_C01379.svg', 
@@ -64,6 +73,7 @@
     const rers = ['A','B','C','D','E'];
     const trams = ['1','2','3a','3b','4','5','6','7','8','9'];
 
+    // Génération Métros
     const mGrid = document.getElementById('m-grid');
     metros.forEach(l => {
         const img = document.createElement('img');
@@ -74,6 +84,7 @@
         mGrid.appendChild(img);
     });
 
+    // Génération RER (Sécurité : si l'image plante ou n'est pas là, ça met un beau texte bleu)
     const rGrid = document.getElementById('r-grid');
     rers.forEach(l => {
         const img = document.createElement('img');
@@ -81,9 +92,17 @@
         img.src = codesImages[`rer-${l}`];
         img.alt = `RER ${l}`;
         img.onclick = () => verifTrafic(`rer-${l}`, `RER ${l}`);
+        img.onerror = function() {
+            const txtBtn = document.createElement('div');
+            txtBtn.className = 'text-btn rer';
+            txtBtn.innerText = `RER ${l}`;
+            txtBtn.onclick = () => verifTrafic(`rer-${l}`, `RER ${l}`);
+            img.replaceWith(txtBtn);
+        };
         rGrid.appendChild(img);
     });
 
+    // Génération Trams (Sécurité : si l'image plante, ça met un texte orange)
     const tGrid = document.getElementById('t-grid');
     trams.forEach(l => {
         const img = document.createElement('img');
@@ -91,6 +110,13 @@
         img.src = codesImages[`tram-${l}`];
         img.alt = `Tram ${l}`;
         img.onclick = () => verifTrafic(`tram-${l}`, `Tram ${l}`);
+        img.onerror = function() {
+            const txtBtn = document.createElement('div');
+            txtBtn.className = 'text-btn tram';
+            txtBtn.innerText = `T${l}`;
+            txtBtn.onclick = () => verifTrafic(`tram-${l}`, `Tram ${l}`);
+            img.replaceWith(txtBtn);
+        };
         tGrid.appendChild(img);
     });
 
@@ -112,7 +138,7 @@
         .then(res => res.json())
         .then(data => {
             const reports = data.line_reports || [];
-            const idTarget = idfmCodes[cleMapping]; // Récupère le bon ID unique (ex: C01742)
+            const idTarget = idfmCodes[cleMapping];
 
             const alerte = reports.find(r => r.line && r.line.id && r.line.id.includes(idTarget));
 
