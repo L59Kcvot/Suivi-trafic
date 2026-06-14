@@ -6,27 +6,130 @@
     <title>Suivi Trafic Île-de-France Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: Arial, sans-serif; background-color: #ffffff; color: #333; margin: 0; padding: 20px; }
-        .container { max-width: 850px; margin: 0 auto; }
-        h1 { font-size: 24px; margin-bottom: 25px; border-bottom: 2px solid #002f6c; padding-bottom: 10px; color: #002f6c; }
+        /* Le fameux Bleu Émaillé RATP en fond */
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background: linear-gradient(135deg, #002A54 0%, #001F3F 100%); 
+            color: #ffffff; 
+            margin: 0; 
+            padding: 30px 20px;
+            min-height: 100vh;
+        }
         
-        .section-transport { display: flex; align-items: center; margin-bottom: 20px; background: #fdfdfd; padding: 15px; border-radius: 8px; border: 1px solid #eee; }
-        .type-label { width: 90px; font-weight: bold; color: #002f6c; font-size: 16px; text-transform: uppercase; }
-        .lines-grid { display: flex; flex-wrap: wrap; gap: 10px; flex: 1; align-items: center; }
-        
-        .line-btn { height: 34px; cursor: pointer; transition: transform 0.1s; user-select: none; }
-        .line-btn:hover { transform: scale(1.2); }
-        
-        /* Boutons de secours au cas où une image foire */
-        .text-btn { display: inline-flex; align-items: center; justify-content: center; height: 34px; min-width: 34px; border-radius: 50%; color: #fff; font-weight: bold; font-size: 14px; cursor: pointer; user-select: none; padding: 0 5px; }
-        .text-btn:hover { transform: scale(1.2); }
-        .text-btn.tram-default { border-radius: 4px; background: #ff8000; }
+        .container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+        }
 
-        .incident-report { margin-top: 30px; padding: 20px; background-color: #fff; border-radius: 8px; border: 2px solid #ddd; display: none; }
-        .incident-report.active { display: block; }
-        .report-title { font-weight: bold; font-size: 18px; margin-bottom: 12px; color: #002f6c; display: flex; align-items: center; gap: 8px; }
-        .warning { color: #d32f2f; background: #ffebee; padding: 12px; border-radius: 6px; border-left: 5px solid #d32f2f; }
-        .success { color: #2e7d32; background: #e8f5e9; padding: 12px; border-radius: 6px; border-left: 5px solid #2e7d32; }
+        /* Titre façon grande station parisienne */
+        h1 { 
+            font-size: 28px; 
+            margin-bottom: 30px; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+        }
+        h1 i {
+            color: #00B1B0; /* Petite touche bleu turquoise RATP moderne pour l'icône */
+        }
+        
+        /* Les blocs catégories : Gris foncé asphalte pour faire ressortir les pictos */
+        .section-transport { 
+            display: flex; 
+            align-items: center; 
+            margin-bottom: 20px; 
+            background: rgba(30, 35, 45, 0.95); /* Gris foncé profond */
+            padding: 20px; 
+            border-radius: 12px; 
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Label de la catégorie (MÉTRO, RER, TRAM) */
+        .type-label { 
+            width: 110px; 
+            font-weight: bold; 
+            color: #00B1B0; 
+            font-size: 15px; 
+            text-transform: uppercase; 
+            letter-spacing: 1.5px;
+            border-right: 2px solid rgba(255, 255, 255, 0.1);
+            margin-right: 15px;
+        }
+
+        .lines-grid { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 12px; 
+            flex: 1; 
+            align-items: center; 
+        }
+        
+        /* Boutons des logos images */
+        .line-btn { 
+            height: 36px; 
+            cursor: pointer; 
+            transition: all 0.2s ease-in-out; 
+            user-select: none;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+        .line-btn:hover { 
+            transform: scale(1.2) translateY(-2px); 
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+        }
+        
+        /* Bloc d'affichage des incidents */
+        .incident-report { 
+            margin-top: 25px; 
+            padding: 25px; 
+            background: rgba(25, 30, 40, 0.98); /* Gris encore un poil plus sombre */
+            border-radius: 12px; 
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            display: none; 
+        }
+        .incident-report.active { 
+            display: block; 
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .report-title { 
+            font-weight: 600; 
+            font-size: 18px; 
+            margin-bottom: 15px; 
+            color: #ffffff; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+        }
+
+        /* Design des alertes */
+        .warning { 
+            color: #ff4d4d; 
+            background: rgba(255, 77, 77, 0.1); 
+            padding: 15px; 
+            border-radius: 8px; 
+            border-left: 5px solid #ff4d4d; 
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        .success { 
+            color: #2ed573; 
+            background: rgba(46, 213, 115, 0.1); 
+            padding: 15px; 
+            border-radius: 8px; 
+            border-left: 5px solid #2ed573; 
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -58,7 +161,7 @@
         // RER
         'rer-A': 'Logos/RER/rer%20a.svg', 'rer-B': 'Logos/RER/rer%20b.svg', 'rer-C': 'Logos/RER/rer%20c.svg', 'rer-D': 'Logos/RER/rer%20d.svg', 'rer-E': 'Logos/RER/rer%20e.svg',
 
-        // TRAMS - Calés au poil près sur ton dossier "Logos/Tramway/" avec les T majuscules !
+        // Trams
         'tram-1': 'Logos/Tramway/T1.svg', 'tram-2': 'Logos/Tramway/T2.svg', 
         'tram-3a': 'Logos/Tramway/T3A.svg', 'tram-3b': 'Logos/Tramway/T3B.svg', 
         'tram-4': 'Logos/Tramway/T4.svg', 'tram-5': 'Logos/Tramway/T5.svg', 
@@ -95,7 +198,7 @@
         rGrid.appendChild(img);
     });
 
-    // Grille Tram - ACTIVÉE AVEC LES VRAIS LOGOS IMAGES !
+    // Grille Tram
     const tGrid = document.getElementById('t-grid');
     trams.forEach(l => {
         const img = document.createElement('img');
@@ -103,15 +206,6 @@
         img.src = codesImages[`tram-${l}`]; 
         img.alt = `Tram ${l}`;
         img.onclick = () => verifTrafic('tram', l);
-        
-        img.onerror = function() {
-            // Secours si un fichier manque : bouton orange propre
-            const txtBtn = document.createElement('div');
-            txtBtn.className = 'text-btn tram-default';
-            txtBtn.innerText = `T${l.toUpperCase()}`;
-            txtBtn.onclick = () => verifTrafic('tram', l);
-            img.replaceWith(txtBtn);
-        };
         tGrid.appendChild(img);
     });
 
@@ -138,7 +232,7 @@
                 }
             })
             .catch(() => { 
-                text.innerHTML = "<span style='color:red;'>Erreur de lecture du fichier trafic.json.</span>"; 
+                text.innerHTML = "<span style='color:#ff4d4d;'>Erreur de lecture du fichier trafic.json.</span>"; 
             });
     }
 </script>
