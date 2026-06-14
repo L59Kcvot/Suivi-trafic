@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon Suivi Trafic Île-de-France</title>
+    <title>Suivi Trafic Île-de-France Officiel</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,67 +12,45 @@
             margin: 0;
             padding: 20px;
         }
-        .container { max-width: 900px; margin: 0 auto; }
-        h1 { font-size: 24px; color: #111; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; }
-        .update-link { color: #0066cc; text-decoration: none; font-size: 14px; font-weight: bold; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        h1 { font-size: 24px; color: #111; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
         
         .section-transport {
             display: flex;
-            align-items: flex-start;
-            margin-top: 20px;
-            border-top: 2px solid #ddd;
+            align-items: center;
+            margin-top: 15px;
+            border-top: 1px solid #ddd;
             padding-top: 15px;
         }
         .type-label {
-            width: 80px;
-            font-weight: bold;
-            color: #002f6c;
-            font-size: 16px;
-            padding-top: 5px;
+            width: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .type-icon {
+            height: 24px;
+            margin-right: 5px;
         }
         .lines-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
             flex: 1;
         }
         
-        /* Style des boutons de lignes */
+        /* Style des boutons images */
         .line-btn {
-            width: 34px;
-            height: 34px;
-            border-radius: 8px;
-            border: 2px solid #ccc;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 16px;
+            height: 30px;
             cursor: pointer;
             transition: transform 0.1s;
-            background-color: #fff;
             user-select: none;
         }
-        .line-btn:hover { transform: scale(1.1); }
+        .line-btn:hover { transform: scale(1.15); }
         
-        /* Couleurs officielles approximatives */
-        .rer-A { border-color: #E3051C; color: #E3051C; }
-        .rer-B { border-color: #5291CC; color: #5291CC; }
-        .rer-C { border-color: #FFCE00; color: #FFCE00; }
-        .rer-D { border-color: #00814F; color: #00814F; }
-        .rer-E { border-color: #BD0072; color: #BD0072; }
-        
-        .m-1 { background-color: #FFCE00; color: #000; border-color: #FFCE00; }
-        .m-2 { background-color: #00643C; color: #fff; border-color: #00643C; }
-        .m-3 { background-color: #9F9825; color: #fff; border-color: #9F9825; }
-        .m-4 { background-color: #98145D; color: #fff; border-color: #98145D; }
-        .m-5 { background-color: #FF7E2E; color: #fff; border-color: #FF7E2E; }
-        .m-13 { background-color: #6ECAE7; color: #000; border-color: #6ECAE7; }
-        .m-14 { background-color: #622280; color: #fff; border-color: #622280; }
-
-        /* Fenêtre de détails de l'incident */
+        /* Fenêtre d'incidents */
         .incident-report {
-            margin-top: 30px;
+            margin-top: 40px;
             padding: 20px;
             background-color: #f8f9fa;
             border-radius: 8px;
@@ -80,51 +58,79 @@
             display: none;
         }
         .incident-report.active { display: block; }
-        .report-title { font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #d32f2f; }
+        .report-title { font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #0066cc; display: flex; align-items: center; gap: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🔄 Information trafic à <span id="clock">--:--</span></h1>
-    <a href="#" class="update-link">En savoir plus sur l'info trafic</a>
+    <h1>🔄 Information trafic en Temps Réel</h1>
 
     <div class="section-transport">
-        <div class="type-label">RER</div>
-        <div class="lines-grid">
-            <div class="line-btn rer-A" onclick="checkLigne('RER A')">A</div>
-            <div class="line-btn rer-B" onclick="checkLigne('RER B')">B</div>
-            <div class="line-btn rer-C" onclick="checkLigne('RER C')">C</div>
-            <div class="line-btn rer-D" onclick="checkLigne('RER D')">D</div>
-            <div class="line-btn rer-E" onclick="checkLigne('RER E')">E</div>
+        <div class="type-label">
+            <img class="type-icon" src="https://vianavigo.github.io/idfm-design-token/img/modes/rer.svg" alt="RER">
         </div>
+        <div class="lines-grid" id="rer-container"></div>
     </div>
 
     <div class="section-transport">
-        <div class="type-label">M</div>
-        <div class="lines-grid">
-            <div class="line-btn m-1" onclick="checkLigne('Ligne 1')">1</div>
-            <div class="line-btn m-2" onclick="checkLigne('Ligne 2')">2</div>
-            <div class="line-btn m-3" onclick="checkLigne('Ligne 3')">3</div>
-            <div class="line-btn m-4" onclick="checkLigne('Ligne 4')">4</div>
-            <div class="line-btn m-5" onclick="checkLigne('Ligne 5')">5</div>
-            <div class="line-btn m-13" onclick="checkLigne('Ligne 13')">13</div>
-            <div class="line-btn m-14" onclick="checkLigne('Ligne 14')">14</div>
+        <div class="type-label">
+            <img class="type-icon" src="https://vianavigo.github.io/idfm-design-token/img/modes/metro.svg" alt="Métro">
         </div>
+        <div class="lines-grid" id="metro-container"></div>
+    </div>
+
+    <div class="section-transport">
+        <div class="type-label">
+            <img class="type-icon" src="https://vianavigo.github.io/idfm-design-token/img/modes/tram.svg" alt="Tram">
+        </div>
+        <div class="lines-grid" id="tram-container"></div>
+    </div>
+
+    <div class="section-transport">
+        <div class="type-label">
+            <img class="type-icon" src="https://vianavigo.github.io/idfm-design-token/img/modes/train.svg" alt="Train">
+        </div>
+        <div class="lines-grid" id="train-container"></div>
     </div>
 
     <div id="incident-box" class="incident-report">
         <div id="incident-title" class="report-title">Ligne</div>
-        <div id="incident-text">Aucun problème à signaler sur cette ligne. Le trafic est régulier.</div>
+        <div id="incident-text">Sélectionne une ligne pour voir l'état du trafic du tiécar.</div>
     </div>
 </div>
 
 <script>
-    // Met l'heure actuelle sur la page
-    const maintenant = new Date();
-    document.getElementById('clock').innerText = maintenant.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
+    // Base des URLs pour récupérer les écussons officiels d'IDFM
+    const baseUrl = "https://vianavigo.github.io/idfm-design-token/img/lines";
 
-    // Fonction quand tu cliques sur une pastille
+    // Listes de toutes les lignes d'Île-de-France
+    const metros = ['1', '2', '3', '3bis', '4', '5', '6', '7', '7bis', '8', '9', '10', '11', '12', '13', '14'];
+    const rers = ['A', 'B', 'C', 'D', 'E'];
+    const trams = ['1', '2', '3a', '3b', '4', '5', '6', '7', '8', '9', '11', '12', '13'];
+    const trains = ['H', 'J', 'K', 'L', 'N', 'P', 'R', 'U'];
+
+    // Génération automatique des boutons avec les vrais logos
+    function générerBoutons(liste, type, containerId) {
+        const container = document.getElementById(containerId);
+        liste.forEach(ligne => {
+            const img = document.createElement('img');
+            img.className = 'line-btn';
+            // Exemple de lien généré : https://vianavigo.github.io/idfm-design-token/img/lines/METRO/1.svg
+            img.src = `${baseUrl}/${type.toUpperCase()}/${ligne}.svg`;
+            img.alt = `${type} ${ligne}`;
+            img.onclick = () => checkLigne(`${type} ${ligne}`);
+            container.appendChild(img);
+        });
+    }
+
+    // On lance la création des boutons sur la page
+    générerBoutons(rers, 'RER', 'rer-container');
+    générerBoutons(metros, 'Métro', 'metro-container');
+    générerBoutons(trams, 'Tram', 'tram-container');
+    générerBoutons(trains, 'Train', 'train-container');
+
+    // Fonction de recherche des incidents dans le fichier JSON du robot
     function checkLigne(nomLigne) {
         const box = document.getElementById('incident-box');
         const title = document.getElementById('incident-title');
@@ -133,14 +139,12 @@
         title.innerText = `État du trafic - ${nomLigne}`;
         box.classList.add('active');
         
-        // On va fouiller le fichier JSON du robot
         fetch('trafic.json')
             .then(res => res.json())
             .then(data => {
                 let incidentTrouve = "";
                 
                 if (data.resultats) {
-                    // On cherche si un des messages de la RATP parle de notre ligne cliquée
                     data.resultats.forEach(item => {
                         if (item.texte && item.texte.toLowerCase().includes(nomLigne.toLowerCase())) {
                             incidentTrouve += `<p>⚠️ ${item.texte}</p>`;
@@ -151,11 +155,11 @@
                 if (incidentTrouve !== "") {
                     text.innerHTML = incidentTrouve;
                 } else {
-                    text.innerHTML = "✅ Trafic régulier. Aucune perturbation majeure enregistrée par le robot sur cette ligne.";
+                    text.innerHTML = "✅ **Trafic régulier.** Aucune perturbation majeure signalée sur cette ligne.";
                 }
             })
             .catch(() => {
-                text.innerText = "Erreur lors de la lecture des données. Attends que le robot ait fini de tourner.";
+                text.innerText = "Erreur de chargement. Attends que le robot ait fini d'écrire les données.";
             });
     }
 </script>
