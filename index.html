@@ -11,36 +11,19 @@
         h1 { font-size: 24px; margin-bottom: 25px; border-bottom: 2px solid #002f6c; padding-bottom: 10px; color: #002f6c; }
         
         .section-transport { display: flex; align-items: center; margin-bottom: 20px; background: #fdfdfd; padding: 15px; border-radius: 8px; border: 1px solid #eee; }
-        .type-label { width: 90px; font-weight: bold; color: #002f6c; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .type-label { width: 90px; font-weight: bold; color: #002f6c; font-size: 16px; text-transform: uppercase; }
         .lines-grid { display: flex; flex-wrap: wrap; gap: 10px; flex: 1; }
         
-        /* Style des boutons ronds (Métro et Tram) */
         .line-btn { 
-            height: 34px; 
-            width: 34px; 
-            cursor: pointer; 
-            transition: transform 0.1s, box-shadow 0.1s; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: bold; 
-            font-size: 14px; 
-            color: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-            border: 1px solid rgba(0,0,0,0.1);
-            user-select: none;
+            height: 34px; width: 34px; cursor: pointer; transition: transform 0.1s; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            font-weight: bold; font-size: 14px; color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15); border: 1px solid rgba(0,0,0,0.1); user-select: none;
         }
+        .line-btn.rer { border-radius: 6px; font-size: 16px; }
+        .line-btn:hover { transform: scale(1.18); }
         
-        /* Style des boutons carrés arrondis (RER) */
-        .line-btn.rer {
-            border-radius: 6px;
-            font-size: 16px;
-        }
-        
-        .line-btn:hover { transform: scale(1.18); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
-        
-        /* Couleurs officielles de la RATP / IDFM */
+        /* Couleurs IDFM */
         .m-1 { background-color: #ffcd00; color: #000; }
         .m-2 { background-color: #00643c; }
         .m-3 { background-color: #9f9825; }
@@ -57,13 +40,11 @@
         .m-12 { background-color: #007c5a; }
         .m-13 { background-color: #8ed8f2; color: #000; }
         .m-14 { background-color: #622280; }
-
         .rer-A { background-color: #c40000; }
         .rer-B { background-color: #0066cc; }
         .rer-C { background-color: #f2ba00; color: #000; }
         .rer-D { background-color: #005522; }
         .rer-E { background-color: #e0007b; }
-
         .tram-1 { background-color: #0033aa; }
         .tram-2 { background-color: #e0007b; }
         .tram-3a { background-color: #ff4400; }
@@ -74,11 +55,10 @@
         .tram-7 { background-color: #79bb92; color: #000; }
         .tram-8 { background-color: #9f7bba; }
 
-        /* Bloc d'affichage des incidents */
         .incident-report { margin-top: 30px; padding: 20px; background-color: #fff; border-radius: 8px; border: 2px solid #ddd; display: none; }
         .incident-report.active { display: block; }
         .report-title { font-weight: bold; font-size: 18px; margin-bottom: 12px; color: #002f6c; display: flex; align-items: center; gap: 8px; }
-        .warning { color: #d32f2f; background: #ffebee; padding: 12px; border-radius: 6px; border-left: 5px solid #d32f2f; font-line: 1.4; }
+        .warning { color: #d32f2f; background: #ffebee; padding: 12px; border-radius: 6px; border-left: 5px solid #d32f2f; }
         .success { color: #2e7d32; background: #e8f5e9; padding: 12px; border-radius: 6px; border-left: 5px solid #2e7d32; }
     </style>
 </head>
@@ -102,34 +82,22 @@
     const rers = ['A','B','C','D','E'];
     const trams = ['1','2','3a','3b','4','5','6','7','8'];
 
-    // Génération des Métros (Ronds)
     const mGrid = document.getElementById('m-grid');
     metros.forEach(l => {
-        const div = document.createElement('div');
-        div.className = `line-btn m-${l}`;
-        div.innerText = l;
-        div.onclick = () => verifTrafic('metro', l);
-        mGrid.appendChild(div);
+        const div = document.createElement('div'); div.className = `line-btn m-${l}`; div.innerText = l;
+        div.onclick = () => verifTrafic('metro', l); mGrid.appendChild(div);
     });
 
-    // Génération des RER (Carrés)
     const rGrid = document.getElementById('r-grid');
     rers.forEach(l => {
-        const div = document.createElement('div');
-        div.className = `line-btn rer rer-${l}`;
-        div.innerText = l;
-        div.onclick = () => verifTrafic('rer', l);
-        rGrid.appendChild(div);
+        const div = document.createElement('div'); div.className = `line-btn rer rer-${l}`; div.innerText = l;
+        div.onclick = () => verifTrafic('rer', l); rGrid.appendChild(div);
     });
 
-    // Génération des Trams (Ronds avec un T)
     const tGrid = document.getElementById('t-grid');
     trams.forEach(l => {
-        const div = document.createElement('div');
-        div.className = `line-btn tram-${l}`;
-        div.innerText = `T${l}`;
-        div.onclick = () => verifTrafic('tram', l);
-        tGrid.appendChild(div);
+        const div = document.createElement('div'); div.className = `line-btn tram-${l}`; div.innerText = `T${l}`;
+        div.onclick = () => verifTrafic('tram', l); tGrid.appendChild(div);
     });
 
     function verifTrafic(type, ligne) {
@@ -139,25 +107,25 @@
         
         title.innerHTML = `<i class="fa-solid fa-circle-info"></i> État du trafic - ${type.toUpperCase()} ${ligne}`;
         box.classList.add('active');
-        text.innerHTML = "Chargement des infos en cours...";
+        text.innerHTML = "Chargement des infos...";
 
         fetch('trafic.json')
             .then(res => res.json())
             .then(data => {
-                const key = `${type}s`;
-                const listeLignes = data.resultats && data.resultats[key];
-                const laLigne = listeLignes ? listeLignes.find(item => item.line.toLowerCase() === ligne.toLowerCase()) : null;
+                // Correspondance avec les clés du nouveau JSON
+                const key = type === 'metro' ? 'metros' : (type === 'rer' ? 'rers' : 'trams');
+                const listeLignes = data[key] || [];
+                
+                const laLigne = listeLignes.find(item => item.line.toString().toLowerCase() === ligne.toLowerCase());
                 
                 if (laLigne && laLigne.slug !== "normal") {
-                    text.innerHTML = `<div class="warning"><strong>⚠️ ${laLigne.title}</strong><br>${laLigne.message}</div>`;
-                } else if (laLigne) {
-                    text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>${laLigne.message}</div>`;
+                    text.innerHTML = `<div class="warning"><strong>⚠️ ${laLigne.title || 'Perturbation'}</strong><br>${laLigne.message}</div>`;
                 } else {
-                    text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>Aucune perturbation signalée sur cette ligne.</div>`;
+                    text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>Trafic régulier sur l'ensemble de la ligne.</div>`;
                 }
             })
             .catch(() => { 
-                text.innerHTML = "<span style='color:red;'>Erreur de lecture. Vérifie que le robot a bien tourné dans Actions.</span>"; 
+                text.innerHTML = "<span style='color:red;'>Erreur de lecture du fichier JSON. Recommence l'étape de l'onglet Actions.</span>"; 
             });
     }
 </script>
