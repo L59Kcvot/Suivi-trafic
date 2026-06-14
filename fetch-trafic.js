@@ -2,20 +2,29 @@ const fs = require('fs');
 
 async function getTrafic() {
     try {
-        // On interroge l'API ouverte du trafic RATP
-        const response = await fetch('https://api-ratp.melvin-lemoine.me/v1/traffic');
+        // On utilise l'API directe et officielle des données du trafic RATP
+        const response = await fetch('https://data.ratp.fr/api/explore/v2.1/catalog/datasets/trafic-rattache-au-compte-twitter/records?limit=100');
+        
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP : ${response.status}`);
+        }
+
         const data = await response.json();
         
+        // On formate les données proprement pour notre fichier
         const historique = {
             derniereMiseAJour: new Date().toISOString(),
-            resultats: data.result
+            resultats: data.results || []
         };
 
-        // On sauvegarde le résultat dans un fichier JSON pour ton site
+        // On crée de force le fichier
         fs.writeFileSync('trafic.json', JSON.stringify(historique, null, 2));
-        console.log("Données trafic mises à jour avec succès !");
+        console.log("Fichier trafic.json créé avec succès !");
+
     } catch (error) {
-        console.error("Erreur lors de la récupération de l'API :", error);
+        console.error("Le script a planté :", error.message);
+        // On crée quand même un fichier vide pour éviter que le robot GitHub plante sur l'étape suivante
+        fs.writeFileSync('trafic.json', JSON.stringify({ error: error.message, date: new Date().toISOString() }));
     }
 }
 
