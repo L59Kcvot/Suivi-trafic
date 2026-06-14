@@ -37,17 +37,17 @@
 </div>
 
 <script>
+    // CORRECTION : Des clés uniques avec préfixe pour ne plus mélanger Métro 1 et Tram 1 !
     const idfmCodes = {
-        '1': 'C01371', '2': 'C01372', '3': 'C01373', '3bis': 'C01386', '4': 'C01374',
-        '5': 'C01375', '6': 'C01376', '7': 'C01377', '7bis': 'C01387', '8': 'C01378',
-        '9': 'C01379', '10': 'C01380', '11': 'C01381', '12': 'C01382', '13': 'C01383', '14': 'C01384',
-        'A': 'C01742', 'B': 'C01743', 'C': 'C01744', 'D': 'C01745', 'E': 'C01746',
-        '1': 'C01389', '2': 'C01390', '3a': 'C01391', '3b': 'C01392', '4': 'C01819',
-        '5': 'C01684', '6': 'C01794', '7': 'C01795', '8': 'C01796', '9': 'C02317'
+        'm-1': 'C01371', 'm-2': 'C01372', 'm-3': 'C01373', 'm-3bis': 'C01386', 'm-4': 'C01374',
+        'm-5': 'C01375', 'm-6': 'C01376', 'm-7': 'C01377', 'm-7bis': 'C01387', 'm-8': 'C01378',
+        'm-9': 'C01379', 'm-10': 'C01380', 'm-11': 'C01381', 'm-12': 'C01382', 'm-13': 'C01383', 'm-14': 'C01384',
+        'rer-A': 'C01742', 'rer-B': 'C01743', 'rer-C': 'C01744', 'rer-D': 'C01745', 'rer-E': 'C01746',
+        'tram-1': 'C01389', 'tram-2': 'C01390', 'tram-3a': 'C01391', 'tram-3b': 'C01392', 'tram-4': 'C01819',
+        'tram-5': 'C01684', 'tram-6': 'C01794', 'tram-7': 'C01795', 'tram-8': 'C01796', 'tram-9': 'C02317'
     };
 
     const codesImages = {
-        // Ajout du préfixe logos/ pour pointer vers le nouveau dossier bien rangé !
         'm-1': 'logos/LIG_IDFM_C01371.svg', 'm-2': 'logos/LIG_IDFM_C01372.svg', 'm-3': 'logos/LIG_IDFM_C01373.svg', 
         'm-4': 'logos/LIG_IDFM_C01374.svg', 'm-5': 'logos/LIG_IDFM_C01375.svg', 'm-6': 'logos/LIG_IDFM_C01376.svg', 
         'm-7': 'logos/LIG_IDFM_C01377.svg', 'm-8': 'logos/LIG_IDFM_C01378.svg', 'm-9': 'logos/LIG_IDFM_C01379.svg', 
@@ -70,7 +70,7 @@
         img.className = 'line-btn';
         img.src = codesImages[`m-${l}`]; 
         img.alt = `Métro ${l}`;
-        img.onclick = () => verifTrafic('metro', l);
+        img.onclick = () => verifTrafic(`m-${l}`, `Métro ${l}`);
         mGrid.appendChild(img);
     });
 
@@ -80,7 +80,7 @@
         img.className = 'line-btn';
         img.src = codesImages[`rer-${l}`];
         img.alt = `RER ${l}`;
-        img.onclick = () => verifTrafic('rer', l);
+        img.onclick = () => verifTrafic(`rer-${l}`, `RER ${l}`);
         rGrid.appendChild(img);
     });
 
@@ -90,16 +90,16 @@
         img.className = 'line-btn';
         img.src = codesImages[`tram-${l}`];
         img.alt = `Tram ${l}`;
-        img.onclick = () => verifTrafic('tram', l);
+        img.onclick = () => verifTrafic(`tram-${l}`, `Tram ${l}`);
         tGrid.appendChild(img);
     });
 
-    function verifTrafic(type, ligne) {
+    function verifTrafic(cleMapping, nomAffiche) {
         const box = document.getElementById('incident-box');
         const title = document.getElementById('incident-title');
         const text = document.getElementById('incident-text');
         
-        title.innerHTML = `<i class="fa-solid fa-circle-info"></i> État du trafic - ${type.toUpperCase()} ${ligne}`;
+        title.innerHTML = `<i class="fa-solid fa-circle-info"></i> État du trafic - ${nomAffiche}`;
         box.classList.add('active');
         text.innerHTML = "Connexion directe aux serveurs de la région...";
 
@@ -112,13 +112,13 @@
         .then(res => res.json())
         .then(data => {
             const reports = data.line_reports || [];
-            const idTarget = idfmCodes[ligne];
+            const idTarget = idfmCodes[cleMapping]; // Récupère le bon ID unique (ex: C01742)
 
             const alerte = reports.find(r => r.line && r.line.id && r.line.id.includes(idTarget));
 
             if (alerte) {
                 const cause = alerte.cause || "Perturbation";
-                const desc = alerte.description || "Trafic raleni ou interrompu.";
+                const desc = alerte.description || "Trafic ralenti ou interrompu.";
                 text.innerHTML = `<div class="warning"><strong>⚠️ ${cause}</strong><br>${desc}</div>`;
             } else {
                 text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>Le trafic est fluide sur l'ensemble de la ligne, aucun incident majeur signalé.</div>`;
