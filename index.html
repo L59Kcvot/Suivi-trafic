@@ -68,28 +68,28 @@
 
     <div class="section-transport">
         <div class="type-label">
-            <img class="type-icon" src="https://upload.wikimedia.org/wikipedia/commons/4/44/RER_Paris_logo.svg" alt="RER">
+            <img class="type-icon" src="https://data.iledefrance-mobilites.fr/assets/theme_image/idfm-rer.png" alt="RER" onerror="this.src='https://placehold.co/30x30?text=RER'">
         </div>
         <div class="lines-grid" id="rer-container"></div>
     </div>
 
     <div class="section-transport">
         <div class="type-label">
-            <img class="type-icon" src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Metro_Paris_Logo.svg" alt="M">
+            <img class="type-icon" src="https://data.iledefrance-mobilites.fr/assets/theme_image/idfm-metro.png" alt="M" onerror="this.src='https://placehold.co/30x30?text=M'">
         </div>
         <div class="lines-grid" id="metro-container"></div>
     </div>
 
     <div class="section-transport">
         <div class="type-label">
-            <img class="type-icon" src="https://upload.wikimedia.org/wikipedia/commons/a/ae/Tramway-Paris-Logo.svg" alt="T">
+            <img class="type-icon" src="https://data.iledefrance-mobilites.fr/assets/theme_image/idfm-tram.png" alt="T" onerror="this.src='https://placehold.co/30x30?text=T'">
         </div>
         <div class="lines-grid" id="tram-container"></div>
     </div>
 
     <div class="section-transport">
         <div class="type-label">
-            <img class="type-icon" src="https://upload.wikimedia.org/wikipedia/commons/a/ae/Logo_Train_Transilien.svg" alt="Train">
+            <img class="type-icon" src="https://data.iledefrance-mobilites.fr/assets/theme_image/idfm-train.png" alt="Train" onerror="this.src='https://placehold.co/30x30?text=Train'">
         </div>
         <div class="lines-grid" id="train-container"></div>
     </div>
@@ -101,24 +101,36 @@
 </div>
 
 <script>
-    // Serveur ultra stable pour les écussons de lignes de la communauté de transport
-    const imgUrl = "https://raw.githubusercontent.com/CanalTP/navitia-assets/master/images/fr-idf";
+    // URL de l'API de génération d'écussons d'IDFM / vianavigo
+    const imgUrl = "https://me-deplacer.iledefrance-mobilites.fr/assets/images/lines";
 
-    // Tableaux de correspondance pour choper les bons logos
     const rers = ['A', 'B', 'C', 'D', 'E'];
     const metros = ['1', '2', '3', '3bis', '4', '5', '6', '7', '7bis', '8', '9', '10', '11', '12', '13', '14'];
     const trams = ['1', '2', '3a', '3b', '4', '5', '6', '7', '8', '9'];
     const trains = ['H', 'J', 'K', 'L', 'N', 'P', 'R', 'U'];
 
-    function genererBoutons(liste, prefixeUrl, typePourRecherche, containerId) {
+    function genererBoutons(liste, typeDossier, typePourRecherche, containerId) {
         const container = document.getElementById(containerId);
         liste.forEach(ligne => {
             const img = document.createElement('img');
             img.className = 'line-btn';
             
-            // On va chercher l'image exacte sur le serveur distant (ex: .../lign_RER_A.svg)
-            img.src = `${imgUrl}/lign_${prefixeUrl}_${ligne.toUpperCase()}.svg`;
+            // Format des URLs officielles d'IDFM : .../lines/P_METRO/L_1.svg ou P_RER/L_A.svg
+            img.src = `${imgUrl}/P_${typeDossier.toUpperCase()}/L_${ligne.toUpperCase()}.svg`;
             img.alt = `${typePourRecherche} ${ligne}`;
+            
+            // Si jamais une image saute, on affiche un texte propre de secours
+            img.onerror = function() {
+                this.style.display = 'none';
+                const txtFallback = document.createElement('span');
+                txtFallback.innerText = ligne;
+                txtFallback.style.padding = '5px 10px';
+                txtFallback.style.background = '#eee';
+                txtFallback.style.borderRadius = '4px';
+                txtFallback.style.cursor = 'pointer';
+                txtFallback.onclick = () => checkLigne(nomRecherche);
+                container.appendChild(txtFallback);
+            };
             
             const nomRecherche = typePourRecherche === 'Métro' ? `Ligne ${ligne}` : `${typePourRecherche.toUpperCase()} ${ligne.toUpperCase()}`;
             img.onclick = () => checkLigne(nomRecherche);
@@ -126,7 +138,7 @@
         });
     }
 
-    // On lance la machine avec le bon format d'URL du serveur
+    // Génération
     genererBoutons(rers, 'RER', 'RER', 'rer-container');
     genererBoutons(metros, 'METRO', 'Métro', 'metro-container');
     genererBoutons(trams, 'TRAM', 'Tram', 'tram-container');
@@ -153,7 +165,7 @@
                 }
                 text.innerHTML = incidentTrouve !== "" ? incidentTrouve : "✅ **Trafic régulier.** Aucune perturbation majeure signalée sur cette ligne.";
             })
-            .catch(() => { text.innerText = "Erreur lors de la récupération des données."; });
+            .catch(() => { text.innerText = "Erreur de synchronisation du fichier JSON."; });
     }
 </script>
 
