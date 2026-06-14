@@ -29,7 +29,7 @@
             justify-content: flex-start;
         }
         .type-icon {
-            height: 26px;
+            height: 24px;
             margin-right: 5px;
         }
         .lines-grid {
@@ -39,7 +39,7 @@
             flex: 1;
         }
         
-        /* Style des boutons avec les vrais logos */
+        /* Style des boutons images */
         .line-btn {
             height: 32px;
             cursor: pointer;
@@ -68,28 +68,28 @@
 
     <div class="section-transport">
         <div class="type-label">
-            <img class="type-icon" src="assets/modes/rer.png" alt="RER">
+            <img class="type-icon" src="https://upload.wikimedia.org/wikipedia/commons/4/44/RER_Paris_logo.svg" alt="RER">
         </div>
         <div class="lines-grid" id="rer-container"></div>
     </div>
 
     <div class="section-transport">
         <div class="type-label">
-            <img class="type-icon" src="assets/modes/metro.png" alt="M">
+            <img class="type-icon" src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Metro_Paris_Logo.svg" alt="M">
         </div>
         <div class="lines-grid" id="metro-container"></div>
     </div>
 
     <div class="section-transport">
         <div class="type-label">
-            <img class="type-icon" src="assets/modes/tram.png" alt="T">
+            <img class="type-icon" src="https://upload.wikimedia.org/wikipedia/commons/a/ae/Tramway-Paris-Logo.svg" alt="T">
         </div>
         <div class="lines-grid" id="tram-container"></div>
     </div>
 
     <div class="section-transport">
         <div class="type-label">
-            <img class="type-icon" src="assets/modes/train.png" alt="Train">
+            <img class="type-icon" src="https://upload.wikimedia.org/wikipedia/commons/a/ae/Logo_Train_Transilien.svg" alt="Train">
         </div>
         <div class="lines-grid" id="train-container"></div>
     </div>
@@ -101,32 +101,36 @@
 </div>
 
 <script>
-    // Listes des lignes
+    // Serveur ultra stable pour les écussons de lignes de la communauté de transport
+    const imgUrl = "https://raw.githubusercontent.com/CanalTP/navitia-assets/master/images/fr-idf";
+
+    // Tableaux de correspondance pour choper les bons logos
     const rers = ['A', 'B', 'C', 'D', 'E'];
     const metros = ['1', '2', '3', '3bis', '4', '5', '6', '7', '7bis', '8', '9', '10', '11', '12', '13', '14'];
     const trams = ['1', '2', '3a', '3b', '4', '5', '6', '7', '8', '9'];
     const trains = ['H', 'J', 'K', 'L', 'N', 'P', 'R', 'U'];
 
-    // Génération automatique des images locales
-    function genererBoutons(liste, type, containerId) {
+    function genererBoutons(liste, prefixeUrl, typePourRecherche, containerId) {
         const container = document.getElementById(containerId);
         liste.forEach(ligne => {
             const img = document.createElement('img');
             img.className = 'line-btn';
-            // Va chercher l'image directement dans ton dossier assets/lines/
-            img.src = `assets/lines/${type.toLowerCase()}_${ligne.toLowerCase()}.png`;
-            img.alt = `${type} ${ligne}`;
             
-            const nomRecherche = type === 'Métro' ? `Ligne ${ligne}` : `${type.toUpperCase()} ${ligne.toUpperCase()}`;
+            // On va chercher l'image exacte sur le serveur distant (ex: .../lign_RER_A.svg)
+            img.src = `${imgUrl}/lign_${prefixeUrl}_${ligne.toUpperCase()}.svg`;
+            img.alt = `${typePourRecherche} ${ligne}`;
+            
+            const nomRecherche = typePourRecherche === 'Métro' ? `Ligne ${ligne}` : `${typePourRecherche.toUpperCase()} ${ligne.toUpperCase()}`;
             img.onclick = () => checkLigne(nomRecherche);
             container.appendChild(img);
         });
     }
 
-    genererBoutons(rers, 'RER', 'rer-container');
-    genererBoutons(metros, 'Métro', 'metro-container');
-    genererBoutons(trams, 'Tram', 'tram-container');
-    genererBoutons(trains, 'Train', 'train-container');
+    // On lance la machine avec le bon format d'URL du serveur
+    genererBoutons(rers, 'RER', 'RER', 'rer-container');
+    genererBoutons(metros, 'METRO', 'Métro', 'metro-container');
+    genererBoutons(trams, 'TRAM', 'Tram', 'tram-container');
+    genererBoutons(trains, 'TRAIN', 'Train', 'train-container');
 
     function checkLigne(nomLigne) {
         const box = document.getElementById('incident-box');
@@ -149,7 +153,7 @@
                 }
                 text.innerHTML = incidentTrouve !== "" ? incidentTrouve : "✅ **Trafic régulier.** Aucune perturbation majeure signalée sur cette ligne.";
             })
-            .catch(() => { text.innerText = "Erreur de chargement des données."; });
+            .catch(() => { text.innerText = "Erreur lors de la récupération des données."; });
     }
 </script>
 
