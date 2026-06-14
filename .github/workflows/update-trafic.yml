@@ -1,0 +1,30 @@
+name: Update RATP Traffic Data
+
+on:
+  schedule:
+    # Le robot va s'exécuter toutes les 30 minutes automatiquement
+    - cron: '*/30 * * * *'
+  workflow_dispatch: # Option pour pouvoir le lancer à la main pour tester
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout du code
+      uses: actions/checkout@v4
+
+    - name: Installation de Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Lancement du script de récupération
+      run: node fetch-trafic.js
+
+    - name: Sauvegarde et Commit du fichier JSON sur GitHub
+      run: |
+        git config --global user.name 'GitHub Actions Bot'
+        git config --global user.email 'actions@github.com'
+        git add trafic.json
+        git commit -m "Mise à jour auto du trafic" || exit 0
+        git push
