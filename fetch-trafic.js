@@ -2,30 +2,49 @@ const fs = require('fs');
 
 async function getTrafic() {
     try {
-        // L'API officielle de secours ouverte de la RATP, indestructible !
-        const response = await fetch('https://raw.githubusercontent.com/pfeofficial/ratp-api/master/data/traffic.json');
-        if (!response.ok) throw new Error(`Erreur RATP : ${response.status}`);
-        
-        const data = await response.json();
-        
-        // On extrait les vraies lignes
-        const metros = data.metro || [];
-        const rers = data.rers || [];
-        const trams = data.tram || [];
+        // Interrogation directe de la plateforme Open Data RATP
+        const responseMetro = await fetch('https://data.ratp.fr/api/explore/v2.1/catalog/datasets/trafic-metro-ratp/records?limit=30');
+        const responseRer = await fetch('https://data.ratp.fr/api/explore/v2.1/catalog/datasets/trafic-rers-ratp/records?limit=10');
+        const responseTram = await fetch('https://data.ratp.fr/api/explore/v2.1/catalog/datasets/trafic-tramways-ratp/records?limit=20');
 
-        // On formate ça nickel pour ton index.html
-        const structurePropre = {
-            derniereMiseAJour: new Date().toISOString(),
-            metros: metros.map(m => ({ line: m.line, slug: m.slug, title: m.title, message: m.message })),
-            rers: rers.map(r => ({ line: r.line, slug: r.slug, title: r.title, message: r.message })),
-            trams: trams.map(t => ({ line: t.line, slug: t.slug, title: t.title, message: t.message }))
+        if (!responseMetro.ok || !responseRer.ok || !responseTram.ok) {
+            throw new Error("Impossible de joindre les serveurs Open Data.");
+        }
+
+        const dataMetro = await responseMetro.json();
+        const dataRer = await responseRer.json();
+        const dataTram = await responseTram.json();
+
+        // Fonction magique pour nettoyer la réponse brute
+        const filtrerData = (records) => {
+            return (records.results || []).map(item => {
+                const textTrafic = item.texte || "";
+                const titreTrafic = item.titre || "";
+                
+                // Si le texte dit que c'est normal, le slug est "normal"
+                const estNormal = textTrafic.toLowerCase().includes("normal") || titreTrafic.toLowerCase().includes("normal");
+
+                return {
+                    line: item.ligne.toString().trim(),
+                    slug: estNormal ? "normal" : "incident",
+                    title: item.titre || "Information",
+                    message: item.texte || "Trafic régulier."
+                };
+            });
         };
 
-        fs.writeFileSync('trafic.json', JSON.stringify(structurePropre, null, 2));
-        console.log("🔥 Base de données RATP synchronisée avec succès !");
+        const structureFinale = {
+            derniereMiseAJour: new Date().toISOString(),
+            metros: filtrerData(dataMetro),
+            rers: filtrerData(dataRer),
+            trams: filtrerData(dataTram)
+        };
+
+        fs.writeFileSync('trafic.json', JSON.stringify(structureFinale, null, 2));
+        console.log("🔥 L'API Open Data a parlé ! Données en temps réel enregistrées !");
     } catch (error) {
-        console.error("Le robot a buggé :", error.message);
-        // Si ça plante, on laisse pas vide pour éviter le message rouge du PC
+        console.error("Erreur robot :", error.message);
+        // Backup si bug pour ne pas bloquer l'index.html
         fs.writeFileSync('trafic.json', JSON.stringify({ metros: [], rers: [], trams: [] }));
     }
 }
