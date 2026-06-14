@@ -13,11 +13,11 @@
         .type-label { width: 90px; font-weight: bold; color: #002f6c; font-size: 16px; text-transform: uppercase; }
         .lines-grid { display: flex; flex-wrap: wrap; gap: 10px; flex: 1; align-items: center; }
         
-        /* Style pour les vrais logos de la région */
+        /* Tes logos importés */
         .line-btn { height: 34px; cursor: pointer; transition: transform 0.1s; user-select: none; }
         .line-btn:hover { transform: scale(1.2); }
         
-        /* Boutons de secours pour RER et Trams */
+        /* Boutons de secours RER / Trams */
         .text-btn { display: inline-flex; align-items: center; justify-content: center; height: 34px; min-width: 34px; border-radius: 50%; background: #002f6c; color: #fff; font-weight: bold; font-size: 14px; cursor: pointer; user-select: none; padding: 0 5px; }
         .text-btn:hover { transform: scale(1.2); }
         .text-btn.rer { border-radius: 4px; background: #0055c8; }
@@ -46,7 +46,6 @@
 </div>
 
 <script>
-    // Les codes IDFM officiels pour interroger l'API
     const idfmCodes = {
         'm-1': 'C01371', 'm-2': 'C01372', 'm-3': 'C01373', 'm-3bis': 'C01386', 'm-4': 'C01374',
         'm-5': 'C01375', 'm-6': 'C01376', 'm-7': 'C01377', 'm-7bis': 'C01387', 'm-8': 'C01378',
@@ -56,32 +55,43 @@
         'tram-5': 'C01684', 'tram-6': 'C01794', 'tram-7': 'C01795', 'tram-8': 'C01796', 'tram-9': 'C02317'
     };
 
+    const codesImages = {
+        // ICI : Les chemins exacts vers TES fichiers .svg du dossier logos
+        'm-1': 'logos/LIG_IDFM_C01371.svg', 
+        'm-2': 'logos/LIG_IDFM_C01372.svg', 
+        'm-3': 'logos/LIG_IDFM_C01373.svg', 
+        'm-4': 'logos/LIG_IDFM_C01374.svg', 
+        'm-5': 'logos/LIG_IDFM_C01375.svg', 
+        'm-6': 'logos/LIG_IDFM_C01376.svg', 
+        'm-7': 'logos/LIG_IDFM_C01377.svg', 
+        'm-8': 'logos/LIG_IDFM_C01378.svg', 
+        'm-9': 'logos/LIG_IDFM_C01379.svg', 
+        'm-10': 'logos/LIG_IDFM_C01380.svg', 
+        'm-11': 'logos/LIG_IDFM_C01381.svg', 
+        'm-12': 'logos/LIG_IDFM_C01382.svg', 
+        'm-13': 'logos/LIG_IDFM_C01383.svg', 
+        'm-14': 'logos/LIG_IDFM_C01384.svg', 
+        // Correction orthographe exacte de ta capture d'écran PC pour les bis :
+        'm-3bis': 'logos/picto-ligne-LIGIDFMC01386.1781406331.svg', 
+        'm-7bis': 'logos/picto-ligne-LIGIDFMC01387.1781406331.svg'
+    };
+
     const metros = ['1','2','3','3bis','4','5','6','7','7bis','8','9','10','11','12','13','14'];
     const rers = ['A','B','C','D','E'];
     const trams = ['1','2','3a','3b','4','5','6','7','8','9'];
 
-    // Génération des Métros avec les vrais serveurs d'images IDFM (Infaillible !)
+    // Métros avec TES images
     const mGrid = document.getElementById('m-grid');
     metros.forEach(l => {
-        const idLigne = idfmCodes[`m-${l}`];
         const img = document.createElement('img');
         img.className = 'line-btn';
-        // On tape direct dans le CDN ouvert d'Île-de-France Mobilités pour choper les vrais rons colorés
-        img.src = `https://prim.iledefrance-mobilites.fr/static/logos/v1/lines/LIG_IDFM_${idLigne}.svg`; 
+        img.src = codesImages[`m-${l}`]; 
         img.alt = `Métro ${l}`;
         img.onclick = () => verifTrafic(`m-${l}`, `Métro ${l}`);
-        img.onerror = function() {
-            // Secours ultime si l'adresse IDFM changeait
-            const txtBtn = document.createElement('div');
-            txtBtn.className = 'text-btn';
-            txtBtn.innerText = l;
-            txtBtn.onclick = () => verifTrafic(`m-${l}`, `Métro ${l}`);
-            img.replaceWith(txtBtn);
-        };
         mGrid.appendChild(img);
     });
 
-    // Génération RER (Boutons textes bleus comme sur la maquette)
+    // RER (Boutons textes bleus)
     const rGrid = document.getElementById('r-grid');
     rers.forEach(l => {
         const txtBtn = document.createElement('div');
@@ -91,7 +101,7 @@
         rGrid.appendChild(txtBtn);
     });
 
-    // Génération Trams (Boutons textes oranges comme sur la maquette)
+    // Trams (Boutons textes oranges)
     const tGrid = document.getElementById('t-grid');
     trams.forEach(l => {
         const txtBtn = document.createElement('div');
@@ -112,7 +122,7 @@
 
         const idTarget = idfmCodes[cleMapping];
         
-        // Proxy de secours n°2 super stable qui ne bloque pas la clé API
+        // Proxy AllOrigins pour choper le flux proprement sans en-tête bloquant
         const proxy = "https://api.allorigins.win/raw?url=";
         const targetApi = `https://prim.iledefrance-mobilites.fr/api/v2/gbfs/lines/line_reports.json?apiKey=WEtotfEFSLYs1wE9QMSK6nC46rvqnf4f`;
         
@@ -131,7 +141,7 @@
             }
         })
         .catch(() => {
-            text.innerHTML = "<span style='color:red;'>Erreur : Impossible de contacter le serveur de trafic. Réessaye dans un instant.</span>";
+            text.innerHTML = "<span style='color:red;'>Erreur : Impossible de contacter le serveur de trafic. Réessaye.</span>";
         });
     }
 </script>
