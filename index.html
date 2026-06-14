@@ -14,7 +14,7 @@
         .type-label { width: 90px; font-weight: bold; color: #002f6c; font-size: 16px; text-transform: uppercase; }
         .lines-grid { display: flex; flex-wrap: wrap; gap: 10px; flex: 1; }
         
-        /* Style unique pour tous les pictos images */
+        /* Style des images logos */
         .line-btn { height: 34px; cursor: pointer; transition: transform 0.1s; user-select: none; }
         .line-btn:hover { transform: scale(1.2); }
         
@@ -46,22 +46,32 @@
 </div>
 
 <script>
-    // Configuration calée à 100% sur les noms exacts de tes fichiers
+    // Configuration 100% alignée sur ton unique dossier "logos/" et tes noms exacts de fichiers
     const codesImages = {
-        // Métros
-        'm-1': 'Logos/Métro/LIG_IDFM_C01371.svg', 'm-2': 'Logos/Métro/LIG_IDFM_C01372.svg', 'm-3': 'Logos/Métro/LIG_IDFM_C01373.svg', 
-        'm-4': 'Logos/Métro/LIG_IDFM_C01374.svg', 'm-5': 'Logos/Métro/LIG_IDFM_C01375.svg', 'm-6': 'Logos/Métro/LIG_IDFM_C01376.svg', 
-        'm-7': 'Logos/Métro/LIG_IDFM_C01377.svg', 'm-8': 'Logos/Métro/LIG_IDFM_C01378.svg', 'm-9': 'Logos/Métro/LIG_IDFM_C01379.svg', 
-        'm-10': 'Logos/Métro/LIG_IDFM_C01380.svg', 'm-11': 'Logos/Métro/LIG_IDFM_C01381.svg', 'm-12': 'Logos/Métro/LIG_IDFM_C01382.svg', 
-        'm-13': 'Logos/Métro/LIG_IDFM_C01383.svg', 'm-14': 'Logos/Métro/LIG_IDFM_C01384.svg', 
-        'm-3bis': 'Logos/Métro/picto-ligne-LIGIDFMC01386.1781406331.svg', 'm-7bis': 'Logos/Métro/picto-ligne-LIGIDFMC01387.1781406331.svg',
+        // Métros (dans logos/)
+        'm-1': 'logos/LIG_IDFM_C01371.svg', 
+        'm-2': 'logos/LIG_IDFM_C01372.svg', 
+        'm-3': 'logos/LIG_IDFM_C01373.svg', 
+        'm-4': 'logos/LIG_IDFM_C01374.svg', 
+        'm-5': 'logos/LIG_IDFM_C01375.svg', 
+        'm-6': 'logos/LIG_IDFM_C01376.svg', 
+        'm-7': 'logos/LIG_IDFM_C01377.svg', 
+        'm-8': 'logos/LIG_IDFM_C01378.svg', 
+        'm-9': 'logos/LIG_IDFM_C01379.svg', 
+        'm-10': 'logos/LIG_IDFM_C01380.svg', 
+        'm-11': 'logos/LIG_IDFM_C01381.svg', 
+        'm-12': 'logos/LIG_IDFM_C01382.svg', 
+        'm-13': 'logos/LIG_IDFM_C01383.svg', 
+        'm-14': 'logos/LIG_IDFM_C01384.svg', 
+        'm-3bis': 'logos/picto-ligne-LIGIDFMC01386.1781406331.svg', 
+        'm-7bis': 'logos/picto-ligne-LIGIDFMC01387.1781406331.svg',
         
-        // RER (Ajusté au poil près sur ton message !)
-        'r-A': 'Logos/Rer/picto-ligne-LIGIDFMC01742.1781406335.svg',
-        'r-B': 'Logos/Rer/picto-ligne-LIGIDFMC01743.1781406335.svg',
-        'r-C': 'Logos/Rer/picto-ligne-LIGIDFMC01727.1781406334.svg',
-        'r-D': 'Logos/Rer/picto-ligne-LIGIDFMC01728.1781406334.svg',
-        'r-E': 'Logos/Rer/picto-ligne-LIGIDFMC01729.1781406334.svg'
+        // RER (maintenant aussi dans logos/ avec les longs noms)
+        'r-A': 'logos/picto-ligne-LIGIDFMC01742.1781406335.svg',
+        'r-B': 'logos/picto-ligne-LIGIDFMC01743.1781406335.svg',
+        'r-C': 'logos/picto-ligne-LIGIDFMC01727.1781406334.svg',
+        'r-D': 'logos/picto-ligne-LIGIDFMC01728.1781406334.svg',
+        'r-E': 'logos/picto-ligne-LIGIDFMC01729.1781406334.svg'
     };
 
     const metros = ['1','2','3','3bis','4','5','6','7','7bis','8','9','10','11','12','13','14'];
@@ -79,7 +89,7 @@
         mGrid.appendChild(img);
     });
 
-    // Grille RER avec tes adresses corrigées
+    // Grille RER
     const rGrid = document.getElementById('r-grid');
     rers.forEach(l => {
         const img = document.createElement('img');
