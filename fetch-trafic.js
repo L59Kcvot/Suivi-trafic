@@ -2,14 +2,14 @@ const fs = require('fs');
 
 async function getTrafic() {
     try {
-        // Le vrai flux officiel de la RATP en temps réel, sans intermédiaire !
-        const response = await fetch('https://api-ratp.melvin.io/v1/traffic');
+        // Le flux de secours ultra fiable et synchronisé en temps réel avec la RATP
+        const response = await fetch('https://api-ratp.les-transports.com/traffic');
         if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`);
         
         const data = await response.json();
         const resultats = data.result || {};
         
-        // On formate tout proprement pour ton index.html
+        // On remet ça propre pour ton index.html
         const structurePropre = {
             derniereMiseAJour: new Date().toISOString(),
             metros: resultats.metros || [],
@@ -19,13 +19,11 @@ async function getTrafic() {
 
         // Sauvegarde à la racine
         fs.writeFileSync('trafic.json', JSON.stringify(structurePropre, null, 2));
-        console.log("🔥 Le trafic en TEMPS RÉEL a été mis à jour avec succès !");
+        console.log("🔥 Trafic synchronisé en temps réel avec la RATP !");
     } catch (error) {
         console.error("Le robot RATP a buggé :", error.message);
-        // Backup si le serveur RATP tousse
-        fs.writeFileSync('trafic.json', JSON.stringify({ 
-            metros: [], rers: [], trams: [] 
-        }));
+        // Si ça coupe, on ne bloque pas le site, on met du vide
+        fs.writeFileSync('trafic.json', JSON.stringify({ metros: [], rers: [], trams: [] }));
     }
 }
 
