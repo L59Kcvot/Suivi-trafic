@@ -56,19 +56,19 @@
         'm-5': 'LIG_IDFM_C01375.svg', 
         'm-6': 'LIG_IDFM_C01376.svg', 
         'm-7': 'LIG_IDFM_C01377.svg', 
-        'm-8': 'LIG_IDFM_C01378.svg', // Ton fichier C01378 correspond au M8
-        'm-9': 'LIG_IDFM_C01379.svg', // Ton fichier C01379 correspond au M9
-        'm-10': 'LIG_IDFM_C01380.svg', // Ton fichier C01380 correspond au M10
-        'm-11': 'LIG_IDFM_C01381.svg', // Ton fichier C01381 correspond au M11
-        'm-12': 'LIG_IDFM_C01382.svg', // Ton fichier C01382 correspond au M12
-        'm-13': 'LIG_IDFM_C01383.svg', // Ton fichier C01383 correspond au M13
-        'm-14': 'LIG_IDFM_C01384.svg', // Ton fichier C01384 correspond au M14
+        'm-8': 'LIG_IDFM_C01378.svg', 
+        'm-9': 'LIG_IDFM_C01379.svg', 
+        'm-10': 'LIG_IDFM_C01380.svg', 
+        'm-11': 'LIG_IDFM_C01381.svg', 
+        'm-12': 'LIG_IDFM_C01382.svg', 
+        'm-13': 'LIG_IDFM_C01383.svg', 
+        'm-14': 'LIG_IDFM_C01384.svg', 
         
         // Tes deux fichiers Bis à rallonge exacts
         'm-3bis': 'picto-ligne-LIGIDFMC01386.1781406331.svg', 
         'm-7bis': 'picto-ligne-LIGIDFMC01387.1781406331.svg',
         
-        // RER (Si tu les as mis à la racine, ils chargeront direct)
+        // RER (Chargeront direct dès que tu les ajouteras à la racine)
         'rer-A': 'LIG_IDFM_C01742.svg', 'rer-B': 'LIG_IDFM_C01743.svg', 'rer-C': 'LIG_IDFM_C01744.svg', 'rer-D': 'LIG_IDFM_C01745.svg', 'rer-E': 'LIG_IDFM_C01746.svg',
         
         // Trams
@@ -121,7 +121,7 @@
         
         title.innerHTML = `<i class="fa-solid fa-circle-info"></i> État du trafic - ${type.toUpperCase()} ${ligne}`;
         box.classList.add('active');
-        text.innerHTML = "Chargement des infos...";
+        text.innerHTML = "Connexion avec les serveurs de la RATP...";
 
         fetch('trafic.json')
             .then(res => res.json())
@@ -129,12 +129,17 @@
                 const key = type === 'metro' ? 'metros' : (type === 'rer' ? 'rers' : 'trams');
                 const listeLignes = data[key] || [];
                 
-                const laLigne = listeLignes.find(item => item.line.toString().toLowerCase() === ligne.toLowerCase());
+                // Recherche exacte de la ligne dans le JSON mis à jour
+                const laLigne = listeLignes.find(item => item.line.toString().toUpperCase() === ligne.toString().toUpperCase());
                 
                 if (laLigne && laLigne.slug !== "normal") {
+                    // Si la RATP signale une galère (travaux, panne, accident)
                     text.innerHTML = `<div class="warning"><strong>⚠️ ${laLigne.title || 'Perturbation'}</strong><br>${laLigne.message}</div>`;
+                } else if (laLigne) {
+                    // Si tout est au calme
+                    text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>${laLigne.message}</div>`;
                 } else {
-                    text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>Trafic régulier sur l'ensemble de la ligne.</div>`;
+                    text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>Aucun incident majeur signalé sur cette ligne.</div>`;
                 }
             })
             .catch(() => { 
