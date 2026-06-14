@@ -99,9 +99,8 @@
         
         title.innerHTML = `<i class="fa-solid fa-circle-info"></i> État du trafic - ${type.toUpperCase()} ${ligne}`;
         box.classList.add('active');
-        text.innerHTML = "Connexion en direct avec l'Open Data RATP...";
+        text.innerHTML = "Connexion directe aux flux RATP en cours...";
 
-        // ON VA CHERCHER LES ENREGISTREMENTS EN DIRECT SUR L'OPEN DATA OFFICIEL
         const dataset = type === 'metro' ? 'trafic-metro-ratp' : (type === 'rer' ? 'trafic-rers-ratp' : 'trafic-tramways-ratp');
         const urlApi = `https://data.ratp.fr/api/explore/v2.1/catalog/datasets/${dataset}/records?limit=20`;
 
@@ -110,20 +109,20 @@
             .then(data => {
                 const liste = data.results || [];
                 
-                // Recherche stricte de la ligne (ex: "A" ou "1")
+                // On cherche la ligne
                 const laLigne = liste.find(item => item.ligne.toString().toUpperCase().trim() === ligne.toUpperCase().trim());
                 
                 if (laLigne) {
                     const messageRATP = laLigne.texte || "";
-                    const titreRATP = laLigne.titre || "";
+                    const titreRATP = laLigne.titre || "Information";
                     
-                    // Si le message ne contient pas "normal", c'est qu'il y a un incident !
-                    const estNormal = messageRATP.toLowerCase().includes("normal") || titreRATP.toLowerCase().includes("normal") || messageRATP === "";
+                    // Si le message contient "TRAFIC NORMAL" ou est vide, tout va bien
+                    const estNormal = messageRATP.toLowerCase().includes("normal") || messageRATP === "";
 
                     if (!estNormal) {
-                        text.innerHTML = `<div class="warning"><strong>⚠️ ${titreMsg || 'Perturbation en cours'}</strong><br>${messageRATP}</div>`;
+                        text.innerHTML = `<div class="warning"><strong>⚠️ ${titreRATP}</strong><br>${messageRATP}</div>`;
                     } else {
-                        text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>${messageRATP || 'Le trafic est fluide.'}</div>`;
+                        text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>${messageRATP || 'Le trafic est fluide sur l\'ensemble de la ligne.'}</div>`;
                     }
                 } else {
                     text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>Aucun incident majeur à signaler.</div>`;
