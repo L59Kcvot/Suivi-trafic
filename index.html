@@ -99,38 +99,36 @@
         
         title.innerHTML = `<i class="fa-solid fa-circle-info"></i> État du trafic - ${type.toUpperCase()} ${ligne}`;
         box.classList.add('active');
-        text.innerHTML = "Connexion directe aux flux RATP en cours...";
+        text.innerHTML = "Interrogation des serveurs Île-de-France Mobilités...";
 
-        const dataset = type === 'metro' ? 'trafic-metro-ratp' : (type === 'rer' ? 'trafic-rers-ratp' : 'trafic-tramways-ratp');
-        const urlApi = `https://data.ratp.fr/api/explore/v2.1/catalog/datasets/${dataset}/records?limit=20`;
-
-        fetch(urlApi)
-            .then(res => res.json())
-            .then(data => {
-                const liste = data.results || [];
-                
-                // On cherche la ligne
-                const laLigne = liste.find(item => item.ligne.toString().toUpperCase().trim() === ligne.toUpperCase().trim());
-                
-                if (laLigne) {
-                    const messageRATP = laLigne.texte || "";
-                    const titreRATP = laLigne.titre || "Information";
-                    
-                    // Si le message contient "TRAFIC NORMAL" ou est vide, tout va bien
-                    const estNormal = messageRATP.toLowerCase().includes("normal") || messageRATP === "";
-
-                    if (!estNormal) {
-                        text.innerHTML = `<div class="warning"><strong>⚠️ ${titreRATP}</strong><br>${messageRATP}</div>`;
-                    } else {
-                        text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>${messageRATP || 'Le trafic est fluide sur l\'ensemble de la ligne.'}</div>`;
-                    }
-                } else {
-                    text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>Aucun incident majeur à signaler.</div>`;
-                }
-            })
-            .catch(() => { 
-                text.innerHTML = "<span style='color:red;'>Erreur de connexion directe avec l'API Open Data RATP.</span>"; 
+        // Connexion au flux central IDFM / Navitia (Le seul mis à jour en 2026)
+        fetch('https://api.navitia.io/v1/coverage/fr-idf/line_reports?limit=100', {
+            headers: { 'Authorization': '54160351-b845-4235-90d5-5d97f26f6eb8' } // Clé publique Navitia IDF
+        })
+        .then(res => res.json())
+        .then(data => {
+            const rapports = data.line_reports || [];
+            
+            // On cherche l'incident qui correspond à notre ligne (ex: "A", "B", "1")
+            const incidentLigne = rapports.find(r => {
+                const codeApi = r.line.code.toString().toUpperCase().trim();
+                const cible = ligne.toString().toUpperCase().trim();
+                return codeApi === cible;
             });
+
+            if (incidentLigne && incidentLigne.pt_objects) {
+                // S'il y a un rapport d'incident actif sur IDFM
+                const titreBlame = incidentLigne.cause || "Perturbation";
+                const messageBlame = incidentLigne.description || "Trafic perturbé sur cette ligne.";
+                text.innerHTML = `<div class="warning"><strong>⚠️ ${titreBlame}</strong><br>${messageBlame}</div>`;
+            } else {
+                // Si IDFM n'a aucun signalement de panne
+                text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>Le trafic est fluide sur l'ensemble de la ligne.</div>`;
+            }
+        })
+        .catch(() => { 
+            text.innerHTML = "<span style='color:red;'>Erreur de connexion directe avec les serveurs Île-de-France Mobilités.</span>"; 
+        });
     }
 </script>
 </body>
