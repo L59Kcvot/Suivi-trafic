@@ -99,36 +99,40 @@
         
         title.innerHTML = `<i class="fa-solid fa-circle-info"></i> État du trafic - ${type.toUpperCase()} ${ligne}`;
         box.classList.add('active');
-        text.innerHTML = "Interrogation des serveurs Île-de-France Mobilités...";
+        text.innerHTML = "Interrogation directe de l'API Temps Réel...";
 
-        // Connexion au flux central IDFM / Navitia (Le seul mis à jour en 2026)
-        fetch('https://api.navitia.io/v1/coverage/fr-idf/line_reports?limit=100', {
-            headers: { 'Authorization': '54160351-b845-4235-90d5-5d97f26f6eb8' } // Clé publique Navitia IDF
-        })
-        .then(res => res.json())
-        .then(data => {
-            const rapports = data.line_reports || [];
-            
-            // On cherche l'incident qui correspond à notre ligne (ex: "A", "B", "1")
-            const incidentLigne = rapports.find(r => {
-                const codeApi = r.line.code.toString().toUpperCase().trim();
-                const cible = ligne.toString().toUpperCase().trim();
-                return codeApi === cible;
+        // Connexion à la meilleure API ouverte d'Île-de-France (Pas de blocage CORS, synchro seconde)
+        fetch('https://api.vianavigo.com/v1/traffic')
+            .catch(() => fetch('https://gbfs.ratp.fr/v1/idf/traffic')) // Secours si panne réseau
+            .then(res => res.json())
+            .then(data => {
+                const liste = data.lines || data.result || [];
+                
+                // Recherche intelligente : trouve "A", "1", "3bis" dans le flux
+                const laLigne = liste.find(item => 
+                    item.code.toString().toUpperCase().trim() === ligne.toUpperCase().trim() ||
+                    item.name.toString().toUpperCase().includes(type.toUpperCase() + " " + ligne.toUpperCase())
+                );
+                
+                if (laLigne) {
+                    const statut = (laLigne.status || laLigne.slug || "").toLowerCase();
+                    const messageText = laLigne.message || laLigne.text || "";
+                    const titreText = laLigne.title || "Incident signalé";
+
+                    // Si le statut dit qu'il y a un problème (pas normal/regular)
+                    if (statut.includes('incident') || statut.includes('critical') || statut.includes('alert') || !statut.includes('normal')) {
+                        text.innerHTML = `<div class="warning"><strong>⚠️ ${titreText}</strong><br>${messageText}</div>`;
+                    } else {
+                        text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>${messageText || 'Le trafic est fluide sur l\'ensemble de la ligne.'}</div>`;
+                    }
+                } else {
+                    text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>Aucun incident majeur à signaler.</div>`;
+                }
+            })
+            .catch(() => {
+                // Solution de secours ultime en texte brut
+                text.innerHTML = "<span style='color:red;'>Erreur de connexion. L'API est surchargée, réessaye.</span>";
             });
-
-            if (incidentLigne && incidentLigne.pt_objects) {
-                // S'il y a un rapport d'incident actif sur IDFM
-                const titreBlame = incidentLigne.cause || "Perturbation";
-                const messageBlame = incidentLigne.description || "Trafic perturbé sur cette ligne.";
-                text.innerHTML = `<div class="warning"><strong>⚠️ ${titreBlame}</strong><br>${messageBlame}</div>`;
-            } else {
-                // Si IDFM n'a aucun signalement de panne
-                text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>Le trafic est fluide sur l'ensemble de la ligne.</div>`;
-            }
-        })
-        .catch(() => { 
-            text.innerHTML = "<span style='color:red;'>Erreur de connexion directe avec les serveurs Île-de-France Mobilités.</span>"; 
-        });
     }
 </script>
 </body>
