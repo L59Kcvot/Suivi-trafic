@@ -37,17 +37,27 @@
 </div>
 
 <script>
+    const idfmCodes = {
+        '1': 'C01371', '2': 'C01372', '3': 'C01373', '3bis': 'C01386', '4': 'C01374',
+        '5': 'C01375', '6': 'C01376', '7': 'C01377', '7bis': 'C01387', '8': 'C01378',
+        '9': 'C01379', '10': 'C01380', '11': 'C01381', '12': 'C01382', '13': 'C01383', '14': 'C01384',
+        'A': 'C01742', 'B': 'C01743', 'C': 'C01744', 'D': 'C01745', 'E': 'C01746',
+        '1': 'C01389', '2': 'C01390', '3a': 'C01391', '3b': 'C01392', '4': 'C01819',
+        '5': 'C01684', '6': 'C01794', '7': 'C01795', '8': 'C01796', '9': 'C02317'
+    };
+
     const codesImages = {
-        'm-1': 'LIG_IDFM_C01371.svg', 'm-2': 'LIG_IDFM_C01372.svg', 'm-3': 'LIG_IDFM_C01373.svg', 
-        'm-4': 'LIG_IDFM_C01374.svg', 'm-5': 'LIG_IDFM_C01375.svg', 'm-6': 'LIG_IDFM_C01376.svg', 
-        'm-7': 'LIG_IDFM_C01377.svg', 'm-8': 'LIG_IDFM_C01378.svg', 'm-9': 'LIG_IDFM_C01379.svg', 
-        'm-10': 'LIG_IDFM_C01380.svg', 'm-11': 'LIG_IDFM_C01381.svg', 'm-12': 'LIG_IDFM_C01382.svg', 
-        'm-13': 'LIG_IDFM_C01383.svg', 'm-14': 'LIG_IDFM_C01384.svg', 
-        'm-3bis': 'picto-ligne-LIGIDFMC01386.1781406331.svg', 'm-7bis': 'picto-ligne-LIGIDFMC01387.1781406331.svg',
-        'rer-A': 'LIG_IDFM_C01742.svg', 'rer-B': 'LIG_IDFM_C01743.svg', 'rer-C': 'LIG_IDFM_C01744.svg', 'rer-D': 'LIG_IDFM_C01745.svg', 'rer-E': 'LIG_IDFM_C01746.svg',
-        'tram-1': 'LIG_IDFM_C01389.svg', 'tram-2': 'LIG_IDFM_C01390.svg', 'tram-3a': 'LIG_IDFM_C01391.svg', 'tram-3b': 'LIG_IDFM_C01392.svg', 
-        'tram-4': 'LIG_IDFM_C01819.svg', 'tram-5': 'LIG_IDFM_C01684.svg', 'tram-6': 'LIG_IDFM_C01794.svg', 'tram-7': 'LIG_IDFM_C01795.svg', 
-        'tram-8': 'LIG_IDFM_C01796.svg', 'tram-9': 'LIG_IDFM_C02317.svg'
+        // Ajout du préfixe logos/ pour pointer vers le nouveau dossier bien rangé !
+        'm-1': 'logos/LIG_IDFM_C01371.svg', 'm-2': 'logos/LIG_IDFM_C01372.svg', 'm-3': 'logos/LIG_IDFM_C01373.svg', 
+        'm-4': 'logos/LIG_IDFM_C01374.svg', 'm-5': 'logos/LIG_IDFM_C01375.svg', 'm-6': 'logos/LIG_IDFM_C01376.svg', 
+        'm-7': 'logos/LIG_IDFM_C01377.svg', 'm-8': 'logos/LIG_IDFM_C01378.svg', 'm-9': 'logos/LIG_IDFM_C01379.svg', 
+        'm-10': 'logos/LIG_IDFM_C01380.svg', 'm-11': 'logos/LIG_IDFM_C01381.svg', 'm-12': 'logos/LIG_IDFM_C01382.svg', 
+        'm-13': 'logos/LIG_IDFM_C01383.svg', 'm-14': 'logos/LIG_IDFM_C01384.svg', 
+        'm-3bis': 'logos/picto-ligne-LIGIDFMC01386.1781406331.svg', 'm-7bis': 'logos/picto-ligne-LIGIDFMC01387.1781406331.svg',
+        'rer-A': 'logos/LIG_IDFM_C01742.svg', 'rer-B': 'logos/LIG_IDFM_C01743.svg', 'rer-C': 'logos/LIG_IDFM_C01744.svg', 'rer-D': 'logos/LIG_IDFM_C01745.svg', 'rer-E': 'logos/LIG_IDFM_C01746.svg',
+        'tram-1': 'logos/LIG_IDFM_C01389.svg', 'tram-2': 'logos/LIG_IDFM_C01390.svg', 'tram-3a': 'logos/LIG_IDFM_C01391.svg', 'tram-3b': 'logos/LIG_IDFM_C01392.svg', 
+        'tram-4': 'logos/LIG_IDFM_C01819.svg', 'tram-5': 'logos/LIG_IDFM_C01684.svg', 'tram-6': 'logos/LIG_IDFM_C01794.svg', 'tram-7': 'logos/LIG_IDFM_C01795.svg', 
+        'tram-8': 'logos/LIG_IDFM_C01796.svg', 'tram-9': 'logos/LIG_IDFM_C02317.svg'
     };
 
     const metros = ['1','2','3','3bis','4','5','6','7','7bis','8','9','10','11','12','13','14'];
@@ -60,7 +70,7 @@
         img.className = 'line-btn';
         img.src = codesImages[`m-${l}`]; 
         img.alt = `Métro ${l}`;
-        img.onclick = () => verifTrafic('metros', l);
+        img.onclick = () => verifTrafic('metro', l);
         mGrid.appendChild(img);
     });
 
@@ -70,7 +80,7 @@
         img.className = 'line-btn';
         img.src = codesImages[`rer-${l}`];
         img.alt = `RER ${l}`;
-        img.onclick = () => verifTrafic('rers', l);
+        img.onclick = () => verifTrafic('rer', l);
         rGrid.appendChild(img);
     });
 
@@ -80,38 +90,43 @@
         img.className = 'line-btn';
         img.src = codesImages[`tram-${l}`];
         img.alt = `Tram ${l}`;
-        img.onclick = () => verifTrafic('trams', l);
+        img.onclick = () => verifTrafic('tram', l);
         tGrid.appendChild(img);
     });
 
-    function verifTrafic(cleJson, ligne) {
+    function verifTrafic(type, ligne) {
         const box = document.getElementById('incident-box');
         const title = document.getElementById('incident-title');
         const text = document.getElementById('incident-text');
         
-        title.innerHTML = `<i class="fa-solid fa-circle-info"></i> État du trafic - ${ligne.toUpperCase()}`;
+        title.innerHTML = `<i class="fa-solid fa-circle-info"></i> État du trafic - ${type.toUpperCase()} ${ligne}`;
         box.classList.add('active');
-        text.innerHTML = "Lecture des données IDFM...";
+        text.innerHTML = "Connexion directe aux serveurs de la région...";
 
-        fetch('trafic.json?v=' + new Date().getTime())
-            .then(res => res.json())
-            .then(data => {
-                const listeLignes = data[cleJson] || [];
-                
-                // Recherche exacte de la ligne dans notre fichier généré par le Token
-                const laLigne = listeLignes.find(item => item.line.toString().toUpperCase().trim() === ligne.toUpperCase().trim());
-                
-                if (laLigne && laLigne.slug !== "normal") {
-                    text.innerHTML = `<div class="warning"><strong>⚠️ ${laLigne.title}</strong><br>${laLigne.message}</div>`;
-                } else if (laLigne) {
-                    text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>${laLigne.message}</div>`;
-                } else {
-                    text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>Aucun incident majeur à signaler sur cette ligne.</div>`;
-                }
-            })
-            .catch(() => { 
-                text.innerHTML = "<span style='color:red;'>Erreur : le fichier de trafic est vide. Lance le robot dans l'onglet Actions.</span>"; 
-            });
+        const proxy = "https://corsproxy.io/?";
+        const targetApi = "https://prim.iledefrance-mobilites.fr/api/v2/gbfs/lines/line_reports.json";
+        
+        fetch(proxy + encodeURIComponent(targetApi), {
+            headers: { 'apiKey': 'WEtotfEFSLYs1wE9QMSK6nC46rvqnf4f' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            const reports = data.line_reports || [];
+            const idTarget = idfmCodes[ligne];
+
+            const alerte = reports.find(r => r.line && r.line.id && r.line.id.includes(idTarget));
+
+            if (alerte) {
+                const cause = alerte.cause || "Perturbation";
+                const desc = alerte.description || "Trafic raleni ou interrompu.";
+                text.innerHTML = `<div class="warning"><strong>⚠️ ${cause}</strong><br>${desc}</div>`;
+            } else {
+                text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>Le trafic est fluide sur l'ensemble de la ligne, aucun incident majeur signalé.</div>`;
+            }
+        })
+        .catch(() => {
+            text.innerHTML = "<span style='color:red;'>Erreur de flux direct. Réessaye dans 2 secondes.</span>";
+        });
     }
 </script>
 </body>
