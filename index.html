@@ -14,7 +14,6 @@
         .type-label { width: 90px; font-weight: bold; color: #002f6c; font-size: 16px; text-transform: uppercase; }
         .lines-grid { display: flex; flex-wrap: wrap; gap: 10px; flex: 1; }
         
-        /* Ajustement de la taille des logos officiels */
         .line-btn { 
             height: 34px; 
             cursor: pointer; 
@@ -26,14 +25,14 @@
         .incident-report { margin-top: 30px; padding: 20px; background-color: #fff; border-radius: 8px; border: 2px solid #ddd; display: none; }
         .incident-report.active { display: block; }
         .report-title { font-weight: bold; font-size: 18px; margin-bottom: 12px; color: #002f6c; display: flex; align-items: center; gap: 8px; }
-        .warning { color: #d32f2f; background: #ffebee; padding: 12px; border-radius: 6px; border-left: 5px solid #d32f2f; }
+        .warning { color: #d32f2f; background: #ffebee; padding: 12px; border-radius: 6px; border-left: 5px solid #d32f2f; margin-bottom: 10px; }
         .success { color: #2e7d32; background: #e8f5e9; padding: 12px; border-radius: 6px; border-left: 5px solid #2e7d32; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1><i class="fa-solid fa-train-subway"></i> Information trafic en Temps Réel</h1>
+    <h1><i class="fa-solid fa-train-subway"></i> Information trafic en Temps Réel (Direct API)</h1>
 
     <div class="section-transport"><div class="type-label">Métro</div><div class="lines-grid" id="m-grid"></div></div>
     <div class="section-transport"><div class="type-label">RER</div><div class="lines-grid" id="r-grid"></div></div>
@@ -46,32 +45,14 @@
 </div>
 
 <script>
-    // Configuration calée à 100% sur la capture d'écran de tes fichiers GitHub
     const codesImages = {
-        // Métros classiques
-        'm-1': 'LIG_IDFM_C01371.svg', 
-        'm-2': 'LIG_IDFM_C01372.svg', 
-        'm-3': 'LIG_IDFM_C01373.svg', 
-        'm-4': 'LIG_IDFM_C01374.svg', 
-        'm-5': 'LIG_IDFM_C01375.svg', 
-        'm-6': 'LIG_IDFM_C01376.svg', 
-        'm-7': 'LIG_IDFM_C01377.svg', 
-        'm-8': 'LIG_IDFM_C01378.svg', 
-        'm-9': 'LIG_IDFM_C01379.svg', 
-        'm-10': 'LIG_IDFM_C01380.svg', 
-        'm-11': 'LIG_IDFM_C01381.svg', 
-        'm-12': 'LIG_IDFM_C01382.svg', 
-        'm-13': 'LIG_IDFM_C01383.svg', 
-        'm-14': 'LIG_IDFM_C01384.svg', 
-        
-        // Tes deux fichiers Bis à rallonge exacts
-        'm-3bis': 'picto-ligne-LIGIDFMC01386.1781406331.svg', 
-        'm-7bis': 'picto-ligne-LIGIDFMC01387.1781406331.svg',
-        
-        // RER (Chargeront direct dès que tu les ajouteras à la racine)
+        'm-1': 'LIG_IDFM_C01371.svg', 'm-2': 'LIG_IDFM_C01372.svg', 'm-3': 'LIG_IDFM_C01373.svg', 
+        'm-4': 'LIG_IDFM_C01374.svg', 'm-5': 'LIG_IDFM_C01375.svg', 'm-6': 'LIG_IDFM_C01376.svg', 
+        'm-7': 'LIG_IDFM_C01377.svg', 'm-8': 'LIG_IDFM_C01378.svg', 'm-9': 'LIG_IDFM_C01379.svg', 
+        'm-10': 'LIG_IDFM_C01380.svg', 'm-11': 'LIG_IDFM_C01381.svg', 'm-12': 'LIG_IDFM_C01382.svg', 
+        'm-13': 'LIG_IDFM_C01383.svg', 'm-14': 'LIG_IDFM_C01384.svg', 
+        'm-3bis': 'picto-ligne-LIGIDFMC01386.1781406331.svg', 'm-7bis': 'picto-ligne-LIGIDFMC01387.1781406331.svg',
         'rer-A': 'LIG_IDFM_C01742.svg', 'rer-B': 'LIG_IDFM_C01743.svg', 'rer-C': 'LIG_IDFM_C01744.svg', 'rer-D': 'LIG_IDFM_C01745.svg', 'rer-E': 'LIG_IDFM_C01746.svg',
-        
-        // Trams
         'tram-1': 'LIG_IDFM_C01389.svg', 'tram-2': 'LIG_IDFM_C01390.svg', 'tram-3a': 'LIG_IDFM_C01391.svg', 'tram-3b': 'LIG_IDFM_C01392.svg', 
         'tram-4': 'LIG_IDFM_C01819.svg', 'tram-5': 'LIG_IDFM_C01684.svg', 'tram-6': 'LIG_IDFM_C01794.svg', 'tram-7': 'LIG_IDFM_C01795.svg', 
         'tram-8': 'LIG_IDFM_C01796.svg', 'tram-9': 'LIG_IDFM_C02317.svg'
@@ -81,7 +62,6 @@
     const rers = ['A','B','C','D','E'];
     const trams = ['1','2','3a','3b','4','5','6','7','8','9'];
 
-    // Génération de la grille Métro
     const mGrid = document.getElementById('m-grid');
     metros.forEach(l => {
         const img = document.createElement('img');
@@ -92,7 +72,6 @@
         mGrid.appendChild(img);
     });
 
-    // Génération de la grille RER
     const rGrid = document.getElementById('r-grid');
     rers.forEach(l => {
         const img = document.createElement('img');
@@ -103,7 +82,6 @@
         rGrid.appendChild(img);
     });
 
-    // Génération de la grille Tram
     const tGrid = document.getElementById('t-grid');
     trams.forEach(l => {
         const img = document.createElement('img');
@@ -121,29 +99,41 @@
         
         title.innerHTML = `<i class="fa-solid fa-circle-info"></i> État du trafic - ${type.toUpperCase()} ${ligne}`;
         box.classList.add('active');
-        text.innerHTML = "Connexion avec les serveurs de la RATP...";
+        text.innerHTML = "Interrogations des serveurs Île-de-France Mobilités...";
 
-        fetch('trafic.json')
+        // Connexion DIRECTE à l'Open Data sans passer par le robot GitHub !
+        const urlApi = type === 'metro' ? 'https://data.ratp.fr/api/explore/v2.1/catalog/datasets/trafic-metro-ratp/records?limit=30' :
+                       type === 'rer' ? 'https://data.ratp.fr/api/explore/v2.1/catalog/datasets/trafic-rers-ratp/records?limit=10' :
+                       'https://data.ratp.fr/api/explore/v2.1/catalog/datasets/trafic-tramways-ratp/records?limit=20';
+
+        fetch(urlApi)
             .then(res => res.json())
             .then(data => {
-                const key = type === 'metro' ? 'metros' : (type === 'rer' ? 'rers' : 'trams');
-                const listeLignes = data[key] || [];
+                const résultats = data.results || [];
                 
-                // Recherche exacte de la ligne dans le JSON mis à jour
-                const laLigne = listeLignes.find(item => item.line.toString().toUpperCase() === ligne.toString().toUpperCase());
+                // On cherche si la ligne cliquée est dans les résultats Open Data
+                const laLigne = résultats.find(item => 
+                    item.ligne.toString().toUpperCase().trim() === ligne.toString().toUpperCase().trim()
+                );
                 
-                if (laLigne && laLigne.slug !== "normal") {
-                    // Si la RATP signale une galère (travaux, panne, accident)
-                    text.innerHTML = `<div class="warning"><strong>⚠️ ${laLigne.title || 'Perturbation'}</strong><br>${laLigne.message}</div>`;
-                } else if (laLigne) {
-                    // Si tout est au calme
-                    text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>${laLigne.message}</div>`;
+                if (laLigne) {
+                    const msg = laLigne.texte || "";
+                    const titreMsg = laLigne.titre || "";
+                    const estNormal = msg.toLowerCase().includes("normal") || titreMsg.toLowerCase().includes("normal") || msg === "";
+
+                    if (!estNormal) {
+                        // Alerte rouge si c'est cassé !
+                        text.innerHTML = `<div class="warning"><strong>⚠️ ${titreMsg || 'Perturbation majeure'}</strong><br>${msg}</div>`;
+                    } else {
+                        // Vert si tout va bien
+                        text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>${msg || 'Le trafic est fluide sur l\'ensemble de la ligne.'}</div>`;
+                    }
                 } else {
-                    text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>Aucun incident majeur signalé sur cette ligne.</div>`;
+                    text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>Aucun incident signalé par la RATP en temps réel.</div>`;
                 }
             })
             .catch(() => { 
-                text.innerHTML = "<span style='color:red;'>Erreur de lecture du trafic. Force le lancement du robot dans l'onglet Actions.</span>"; 
+                text.innerHTML = "<span style='color:red;'>Erreur de connexion directe avec l'Open Data RATP. Réessaye.</span>"; 
             });
     }
 </script>
