@@ -3,64 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suivi Trafic Île-de-France</title>
+    <title>Mon Suivi Trafic Île-de-France</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #121212;
-            color: #ffffff;
+            background-color: #ffffff;
+            color: #333333;
             margin: 0;
             padding: 20px;
         }
-        h1 { text-align: center; color: #00b0ff; }
-        .container { max-width: 800px; margin: 0 auto; }
-        .ligne-card {
-            background-color: #1e1e1e;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            border-left: 5px solid #666;
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { font-size: 24px; color: #111; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; }
+        .update-link { color: #0066cc; text-decoration: none; font-size: 14px; font-weight: bold; }
+        
+        .section-transport {
+            display: flex;
+            align-items: flex-start;
+            margin-top: 20px;
+            border-top: 2px solid #ddd;
+            padding-top: 15px;
         }
-        .status-ok { border-left-color: #4caf50; }
-        .status-warning { border-left-color: #ff9800; }
-        .status-danger { border-left-color: #f44336; }
+        .type-label {
+            width: 80px;
+            font-weight: bold;
+            color: #002f6c;
+            font-size: 16px;
+            padding-top: 5px;
+        }
+        .lines-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            flex: 1;
+        }
+        
+        /* Style des boutons de lignes */
+        .line-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            border: 2px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            background-color: #fff;
+            user-select: none;
+        }
+        .line-btn:hover { transform: scale(1.1); }
+        
+        /* Couleurs officielles approximatives */
+        .rer-A { border-color: #E3051C; color: #E3051C; }
+        .rer-B { border-color: #5291CC; color: #5291CC; }
+        .rer-C { border-color: #FFCE00; color: #FFCE00; }
+        .rer-D { border-color: #00814F; color: #00814F; }
+        .rer-E { border-color: #BD0072; color: #BD0072; }
+        
+        .m-1 { background-color: #FFCE00; color: #000; border-color: #FFCE00; }
+        .m-2 { background-color: #00643C; color: #fff; border-color: #00643C; }
+        .m-3 { background-color: #9F9825; color: #fff; border-color: #9F9825; }
+        .m-4 { background-color: #98145D; color: #fff; border-color: #98145D; }
+        .m-5 { background-color: #FF7E2E; color: #fff; border-color: #FF7E2E; }
+        .m-13 { background-color: #6ECAE7; color: #000; border-color: #6ECAE7; }
+        .m-14 { background-color: #622280; color: #fff; border-color: #622280; }
+
+        /* Fenêtre de détails de l'incident */
+        .incident-report {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            display: none;
+        }
+        .incident-report.active { display: block; }
+        .report-title { font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #d32f2f; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Suivi du Trafic en Temps Réel</h1>
-        <p style="text-align: center;">Dernière mise à jour : <span id="update-time">--:--</span></p>
-        
-        <div id="trafic-list">
-            <p style="text-align: center;">Chargement des données du tiécar...</p>
+<div class="container">
+    <h1>🔄 Information trafic à <span id="clock">--:--</span></h1>
+    <a href="#" class="update-link">En savoir plus sur l'info trafic</a>
+
+    <div class="section-transport">
+        <div class="type-label">RER</div>
+        <div class="lines-grid">
+            <div class="line-btn rer-A" onclick="checkLigne('RER A')">A</div>
+            <div class="line-btn rer-B" onclick="checkLigne('RER B')">B</div>
+            <div class="line-btn rer-C" onclick="checkLigne('RER C')">C</div>
+            <div class="line-btn rer-D" onclick="checkLigne('RER D')">D</div>
+            <div class="line-btn rer-E" onclick="checkLigne('RER E')">E</div>
         </div>
     </div>
 
-    <script>
-        // Le site va chercher le fichier JSON généré par le robot
+    <div class="section-transport">
+        <div class="type-label">M</div>
+        <div class="lines-grid">
+            <div class="line-btn m-1" onclick="checkLigne('Ligne 1')">1</div>
+            <div class="line-btn m-2" onclick="checkLigne('Ligne 2')">2</div>
+            <div class="line-btn m-3" onclick="checkLigne('Ligne 3')">3</div>
+            <div class="line-btn m-4" onclick="checkLigne('Ligne 4')">4</div>
+            <div class="line-btn m-5" onclick="checkLigne('Ligne 5')">5</div>
+            <div class="line-btn m-13" onclick="checkLigne('Ligne 13')">13</div>
+            <div class="line-btn m-14" onclick="checkLigne('Ligne 14')">14</div>
+        </div>
+    </div>
+
+    <div id="incident-box" class="incident-report">
+        <div id="incident-title" class="report-title">Ligne</div>
+        <div id="incident-text">Aucun problème à signaler sur cette ligne. Le trafic est régulier.</div>
+    </div>
+</div>
+
+<script>
+    // Met l'heure actuelle sur la page
+    const maintenant = new Date();
+    document.getElementById('clock').innerText = maintenant.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
+
+    // Fonction quand tu cliques sur une pastille
+    function checkLigne(nomLigne) {
+        const box = document.getElementById('incident-box');
+        const title = document.getElementById('incident-title');
+        const text = document.getElementById('incident-text');
+        
+        title.innerText = `État du trafic - ${nomLigne}`;
+        box.classList.add('active');
+        
+        // On va fouiller le fichier JSON du robot
         fetch('trafic.json')
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
-                document.getElementById('update-time').innerText = new Date(data.derniereMiseAJour).toLocaleString('fr-FR');
+                let incidentTrouve = "";
                 
-                const listContainer = document.getElementById('trafic-list');
-                listContainer.innerHTML = ''; // On vide le message de chargement
-
-                // Si l'API renvoie des métros
-                if (data.resultats && data.resultats.metros) {
-                    data.resultats.metros.forEach(metro => {
-                        const card = document.createElement('div');
-                        card.className = 'ligne-card';
-                        
-                        // Changement de couleur selon l'état
-                        if (metro.slug === 'normal') card.classList.add('status-ok');
-                        else if (metro.slug === 'critical') card.classList.add('status-danger');
-                        else card.classList.add('status-warning');
-
-                        card.innerHTML = `
-                            <strong>Métro Ligne ${metro.line}</strong> - Status: ${metro.title}<br>
-                            <small>${metro.message}</small>
-                        `;
-                        listContainer.appendChild(card);
+                if (data.resultats) {
+                    // On cherche si un des messages de la RATP parle de notre ligne cliquée
+                    data.resultats.forEach(item => {
+                        if (item.texte && item.texte.toLowerCase().includes(nomLigne.toLowerCase())) {
+                            incidentTrouve += `<p>⚠️ ${item.texte}</p>`;
+                        }
                     });
+                }
+                
+                if (incidentTrouve !== "") {
+                    text.innerHTML = incidentTrouve;
+                } else {
+                    text.innerHTML = "✅ Trafic régulier. Aucune perturbation majeure enregistrée par le robot sur cette ligne.";
+                }
+            })
+            .catch(() => {
+                text.innerText = "Erreur lors de la lecture des données. Attends que le robot ait fini de tourner.";
+            });
+    }
+</script>
+
+</body>
+</html>
