@@ -3,27 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suivi Trafic IDF Pro</title>
+    <title>Suivi Trafic Île-de-France</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { font-family: Arial, sans-serif; background-color: #ffffff; color: #333; margin: 0; padding: 20px; }
         .container { max-width: 850px; margin: 0 auto; }
-        h1 { font-size: 24px; margin-bottom: 25px; border-bottom: 2px solid #002f6c; padding-bottom: 10px; }
-        .section-transport { display: flex; align-items: center; margin-bottom: 20px; background: #f9f9f9; padding: 10px; border-radius: 8px; }
-        .type-label { width: 70px; font-weight: bold; color: #002f6c; font-size: 16px; }
+        h1 { font-size: 24px; margin-bottom: 25px; border-bottom: 2px solid #002f6c; padding-bottom: 10px; color: #002f6c; }
+        
+        .section-transport { display: flex; align-items: center; margin-bottom: 20px; background: #fdfdfd; padding: 15px; border-radius: 8px; border: 1px solid #eee; }
+        .type-label { width: 90px; font-weight: bold; color: #002f6c; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
         .lines-grid { display: flex; flex-wrap: wrap; gap: 10px; flex: 1; }
-        .line-btn { height: 32px; width: 32px; cursor: pointer; transition: transform 0.1s; }
-        .line-btn:hover { transform: scale(1.2); }
+        
+        /* Style des boutons ronds (Métro et Tram) */
+        .line-btn { 
+            height: 34px; 
+            width: 34px; 
+            cursor: pointer; 
+            transition: transform 0.1s, box-shadow 0.1s; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: bold; 
+            font-size: 14px; 
+            color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            border: 1px solid rgba(0,0,0,0.1);
+            user-select: none;
+        }
+        
+        /* Style des boutons carrés arrondis (RER) */
+        .line-btn.rer {
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        .line-btn:hover { transform: scale(1.18); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        
+        /* Couleurs officielles de la RATP / IDFM */
+        .m-1 { background-color: #ffcd00; color: #000; }
+        .m-2 { background-color: #00643c; }
+        .m-3 { background-color: #9f9825; }
+        .m-3bis { background-color: #98d4e6; color: #000; }
+        .m-4 { background-color: #c04191; }
+        .m-5 { background-color: #f28b00; }
+        .m-6 { background-color: #79bb92; color: #000; }
+        .m-7 { background-color: #f59fb7; color: #000; }
+        .m-7bis { background-color: #79bb92; color: #000; }
+        .m-8 { background-color: #9f7bba; }
+        .m-9 { background-color: #d2e100; color: #000; }
+        .m-10 { background-color: #e3b32a; color: #000; }
+        .m-11 { background-color: #8f613c; }
+        .m-12 { background-color: #007c5a; }
+        .m-13 { background-color: #8ed8f2; color: #000; }
+        .m-14 { background-color: #622280; }
+
+        .rer-A { background-color: #c40000; }
+        .rer-B { background-color: #0066cc; }
+        .rer-C { background-color: #f2ba00; color: #000; }
+        .rer-D { background-color: #005522; }
+        .rer-E { background-color: #e0007b; }
+
+        .tram-1 { background-color: #0033aa; }
+        .tram-2 { background-color: #e0007b; }
+        .tram-3a { background-color: #ff4400; }
+        .tram-3b { background-color: #00aa55; }
+        .tram-4 { background-color: #f2ba00; color: #000; }
+        .tram-5 { background-color: #8f613c; }
+        .tram-6 { background-color: #c04191; }
+        .tram-7 { background-color: #79bb92; color: #000; }
+        .tram-8 { background-color: #9f7bba; }
+
+        /* Bloc d'affichage des incidents */
         .incident-report { margin-top: 30px; padding: 20px; background-color: #fff; border-radius: 8px; border: 2px solid #ddd; display: none; }
         .incident-report.active { display: block; }
-        .report-title { font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #002f6c; }
-        .warning { color: #d32f2f; background: #ffebee; padding: 10px; border-radius: 4px; border-left: 4px solid #d32f2f; }
-        .success { color: #2e7d32; background: #e8f5e9; padding: 10px; border-radius: 4px; border-left: 4px solid #2e7d32; }
+        .report-title { font-weight: bold; font-size: 18px; margin-bottom: 12px; color: #002f6c; display: flex; align-items: center; gap: 8px; }
+        .warning { color: #d32f2f; background: #ffebee; padding: 12px; border-radius: 6px; border-left: 5px solid #d32f2f; font-line: 1.4; }
+        .success { color: #2e7d32; background: #e8f5e9; padding: 12px; border-radius: 6px; border-left: 5px solid #2e7d32; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🔄 Information trafic en Temps Réel</h1>
+    <h1><i class="fa-solid fa-train-subway"></i> Information trafic en Temps Réel</h1>
 
     <div class="section-transport"><div class="type-label">Métro</div><div class="lines-grid" id="m-grid"></div></div>
     <div class="section-transport"><div class="type-label">RER</div><div class="lines-grid" id="r-grid"></div></div>
@@ -36,45 +98,54 @@
 </div>
 
 <script>
-    // Banque d'images de l'API ChloroFil (Vrais logos officiels)
-    const imgBase = "https://raw.githubusercontent.com/ChloroFil/api-ratp/master/assets";
-    
     const metros = ['1','2','3','3bis','4','5','6','7','7bis','8','9','10','11','12','13','14'];
     const rers = ['A','B','C','D','E'];
     const trams = ['1','2','3a','3b','4','5','6','7','8'];
 
-    function creerBoutons(liste, type, containerId) {
-        const grid = document.getElementById(containerId);
-        liste.forEach(l => {
-            const img = document.createElement('img');
-            img.className = 'line-btn';
-            img.src = `${imgBase}/${type}s/${l}.svg`; // Charge le vrai SVG officiel !
-            img.alt = `${type} ${l}`;
-            img.onclick = () => verifTrafic(type, l);
-            grid.appendChild(img);
-        });
-    }
+    // Génération des Métros (Ronds)
+    const mGrid = document.getElementById('m-grid');
+    metros.forEach(l => {
+        const div = document.createElement('div');
+        div.className = `line-btn m-${l}`;
+        div.innerText = l;
+        div.onclick = () => verifTrafic('metro', l);
+        mGrid.appendChild(div);
+    });
 
-    creerBoutons(metros, 'metro', 'm-grid');
-    creerBoutons(rers, 'rer', 'r-grid');
-    creerBoutons(trams, 'tram', 't-grid');
+    // Génération des RER (Carrés)
+    const rGrid = document.getElementById('r-grid');
+    rers.forEach(l => {
+        const div = document.createElement('div');
+        div.className = `line-btn rer rer-${l}`;
+        div.innerText = l;
+        div.onclick = () => verifTrafic('rer', l);
+        rGrid.appendChild(div);
+    });
+
+    // Génération des Trams (Ronds avec un T)
+    const tGrid = document.getElementById('t-grid');
+    trams.forEach(l => {
+        const div = document.createElement('div');
+        div.className = `line-btn tram-${l}`;
+        div.innerText = `T${l}`;
+        div.onclick = () => verifTrafic('tram', l);
+        tGrid.appendChild(div);
+    });
 
     function verifTrafic(type, ligne) {
         const box = document.getElementById('incident-box');
         const title = document.getElementById('incident-title');
         const text = document.getElementById('incident-text');
         
-        title.innerText = `État du trafic - ${type.toUpperCase()} ${ligne}`;
+        title.innerHTML = `<i class="fa-solid fa-circle-info"></i> État du trafic - ${type.toUpperCase()} ${ligne}`;
         box.classList.add('active');
-        text.innerHTML = "Chargement...";
+        text.innerHTML = "Chargement des infos en cours...";
 
         fetch('trafic.json')
             .then(res => res.json())
             .then(data => {
                 const key = `${type}s`;
                 const listeLignes = data.resultats && data.resultats[key];
-                
-                // On cherche la ligne cliquée dans le JSON
                 const laLigne = listeLignes ? listeLignes.find(item => item.line.toLowerCase() === ligne.toLowerCase()) : null;
                 
                 if (laLigne && laLigne.slug !== "normal") {
@@ -82,10 +153,12 @@
                 } else if (laLigne) {
                     text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>${laLigne.message}</div>`;
                 } else {
-                    text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>Aucun incident signalé sur le réseau.</div>`;
+                    text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>Aucune perturbation signalée sur cette ligne.</div>`;
                 }
             })
-            .catch(() => { text.innerHTML = "<span style='color:red;'>Erreur : relance le robot dans l'onglet Actions.</span>"; });
+            .catch(() => { 
+                text.innerHTML = "<span style='color:red;'>Erreur de lecture. Vérifie que le robot a bien tourné dans Actions.</span>"; 
+            });
     }
 </script>
 </body>
