@@ -78,7 +78,7 @@
         img.className = 'line-btn';
         img.src = codesImages[`rer-${l}`];
         img.alt = `RER ${l}`;
-        img.onclick = () => verifTrafic('rer', l);
+        img.onclick = () => verifTric('rer', l);
         rGrid.appendChild(img);
     });
 
@@ -99,9 +99,8 @@
         
         title.innerHTML = `<i class="fa-solid fa-circle-info"></i> État du trafic - ${type.toUpperCase()} ${ligne}`;
         box.classList.add('active');
-        text.innerHTML = "Interrogations des serveurs Île-de-France Mobilités...";
+        text.innerHTML = "Analyse des perturbations en cours...";
 
-        // Connexion DIRECTE à l'Open Data sans passer par le robot GitHub !
         const urlApi = type === 'metro' ? 'https://data.ratp.fr/api/explore/v2.1/catalog/datasets/trafic-metro-ratp/records?limit=30' :
                        type === 'rer' ? 'https://data.ratp.fr/api/explore/v2.1/catalog/datasets/trafic-rers-ratp/records?limit=10' :
                        'https://data.ratp.fr/api/explore/v2.1/catalog/datasets/trafic-tramways-ratp/records?limit=20';
@@ -111,10 +110,12 @@
             .then(data => {
                 const résultats = data.results || [];
                 
-                // On cherche si la ligne cliquée est dans les résultats Open Data
-                const laLigne = résultats.find(item => 
-                    item.ligne.toString().toUpperCase().trim() === ligne.toString().toUpperCase().trim()
-                );
+                // RECHERCHE LARGE : trouve la ligne même si la RATP écrit "RER A" ou "A" ou "0A"
+                const laLigne = résultats.find(item => {
+                    const ligneBrute = item.ligne.toString().toUpperCase().trim();
+                    const cible = ligne.toString().toUpperCase().trim();
+                    return ligneBrute === cible || ligneBrute.includes(cible) || cible.includes(ligneBrute);
+                });
                 
                 if (laLigne) {
                     const msg = laLigne.texte || "";
@@ -122,18 +123,16 @@
                     const estNormal = msg.toLowerCase().includes("normal") || titreMsg.toLowerCase().includes("normal") || msg === "";
 
                     if (!estNormal) {
-                        // Alerte rouge si c'est cassé !
-                        text.innerHTML = `<div class="warning"><strong>⚠️ ${titreMsg || 'Perturbation majeure'}</strong><br>${msg}</div>`;
+                        text.innerHTML = `<div class="warning"><strong>⚠️ ${titreMsg || 'Perturbation signalée'}</strong><br>${msg}</div>`;
                     } else {
-                        // Vert si tout va bien
                         text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>${msg || 'Le trafic est fluide sur l\'ensemble de la ligne.'}</div>`;
                     }
                 } else {
-                    text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>Aucun incident signalé par la RATP en temps réel.</div>`;
+                    text.innerHTML = `<div class="success">✅ <strong>Trafic régulier</strong><br>Aucun incident majeur à signaler sur cette ligne.</div>`;
                 }
             })
             .catch(() => { 
-                text.innerHTML = "<span style='color:red;'>Erreur de connexion directe avec l'Open Data RATP. Réessaye.</span>"; 
+                text.innerHTML = "<span style='color:red;'>Erreur de connexion en direct avec l'API Open Data.</span>"; 
             });
     }
 </script>
