@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Récupérer le code du dépôt
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # Passage à la v4 pour éviter l'avertissement jaune de Node.js
 
       - name: Installer Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5 # Passage à la v5
         with:
           python-version: '3.x'
 
@@ -28,4 +28,5 @@ jobs:
           git config --global user.name 'Robot Trafic'
           git config --global user.email 'robot@trafic.idf'
           git add trafic.json historique.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 MAJ Trafic & Historique en continu" && git push)
+          # La magie est ici : on intègre le jeton secret GITHUB_TOKEN directement dans l'URL du push pour forcer le passage
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 MAJ Trafic & Historique en continu" && git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main)
