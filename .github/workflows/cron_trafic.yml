@@ -1,1 +1,31 @@
+name: Scan IDFM Trafic H24
 
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  refresh-trafic:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code du dépôt
+        uses: actions/checkout@v3
+
+      - name: Installer Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Installer les dépendances
+        run: pip install requests
+
+      - name: Lancer le script de scan
+        run: python update_trafic.py
+
+      - name: Sauvegarder les changements sur GitHub
+        run: |
+          git config --global user.name 'Robot Trafic'
+          git config --global user.email 'robot@trafic.idf'
+          git add trafic.json historique.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 MAJ Trafic & Historique en continu" && git push)
