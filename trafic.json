@@ -111,13 +111,13 @@
             "message": "Trafic régulier sur l'ensemble de la ligne."
         },
         {
-            "line": "C",
+            "line": "D",
             "slug": "normal",
             "title": "Trafic régulier",
             "message": "Trafic régulier sur l'ensemble de la ligne."
         },
         {
-            "line": "D",
+            "line": "C",
             "slug": "normal",
             "title": "Trafic régulier",
             "message": "Trafic régulier sur l'ensemble de la ligne."
